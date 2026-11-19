@@ -28,11 +28,16 @@ export interface Placement {
 const GAP = 4;
 const MIN_W = 280;
 const MAX_W = 560;
-const MIN_SPACE_BELOW = 220;
+/** Smallest box that still reads well (about 6 lines plus header and footer). */
+const COMFORT_HEIGHT = 200;
 
 /**
- * Below the anchor when there is room, otherwise above it (the newest audio sits
- * right above the reply editor). Hidden when the anchor scrolls out of `clip`.
+ * Where the transcription box goes, in order of preference:
+ * 1. below the player, inside the conversation, if there is comfortable room;
+ * 2. above it, inside the conversation (the newest audio sits right above the editor);
+ * 3. otherwise below it, allowed to cover the reply editor while open (small
+ *    laptop screens: the editor takes half the height and neither side fits).
+ * Hidden when the player scrolls out of the conversation (`clip`).
  */
 export function placePanel(anchor: Box, clip: Box, viewportHeight: number): Placement {
   const visible = anchor.bottom > clip.top && anchor.top < clip.bottom;
@@ -40,24 +45,29 @@ export function placePanel(anchor: Box, clip: Box, viewportHeight: number): Plac
   const left = Math.max(clip.left, Math.min(anchor.left, clip.right - width));
   const below = clip.bottom - anchor.bottom - GAP * 2;
   const above = anchor.top - clip.top - GAP * 2;
-  if (below >= MIN_SPACE_BELOW || below >= above) {
+  const belowPage = viewportHeight - anchor.bottom - GAP * 4;
+
+  const placeBelow = (room: number): Placement => ({
+    visible,
+    left,
+    width,
+    top: anchor.bottom + GAP,
+    bottom: null,
+    maxHeight: Math.max(120, room),
+  });
+
+  if (below >= COMFORT_HEIGHT) return placeBelow(below);
+  if (above >= COMFORT_HEIGHT) {
     return {
       visible,
       left,
       width,
-      top: anchor.bottom + GAP,
-      bottom: null,
-      maxHeight: Math.max(120, below),
+      top: null,
+      bottom: viewportHeight - anchor.top + GAP,
+      maxHeight: above,
     };
   }
-  return {
-    visible,
-    left,
-    width,
-    top: null,
-    bottom: viewportHeight - anchor.top + GAP,
-    maxHeight: Math.max(120, above),
-  };
+  return placeBelow(Math.max(below, belowPage));
 }
 
 /** Menu right-aligned under the ⋯ button, flipped above when it would leave `clip`. */

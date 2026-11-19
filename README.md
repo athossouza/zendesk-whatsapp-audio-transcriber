@@ -5,18 +5,19 @@ Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudi
 - Especificação (fonte da verdade): [`docs/especificacao-tecnica.md`](docs/especificacao-tecnica.md)
 - Relatório da Fase 0: [`docs/fase-0-relatorio.md`](docs/fase-0-relatorio.md)
 - Relatório da Fase 1: [`docs/fase-1-relatorio.md`](docs/fase-1-relatorio.md)
+- Piloto SKA (Fase 3): [`docs/piloto-ska.md`](docs/piloto-ska.md) · loja: [`docs/chrome-web-store.md`](docs/chrome-web-store.md) · privacidade: [`docs/politica-de-privacidade.md`](docs/politica-de-privacidade.md) · DPO: [`docs/lgpd-dpo.md`](docs/lgpd-dpo.md)
 
 > Mantenha o projeto fora de pastas sincronizadas (iCloud, Drive). O macOS pode tirar arquivos do disco e travar o build.
 
 ## Status
 
-| Fase               | Status                                                                                    |
-| ------------------ | ----------------------------------------------------------------------------------------- |
-| 0 · Descoberta     | ✅                                                                                        |
-| 1 · Teste do motor | ✅ Modelo padrão: whisper-large-v3-turbo (falta medir numa máquina típica de agente)      |
-| 2 · MVP completo   | ✅ Testado no Zendesk real (d3v-atveza, ticket 454): ⋯, transcrição, nota interna privada |
-| 3 · Piloto na SKA  | ⏳                                                                                        |
-| 4 · Liberação      | ⏳                                                                                        |
+| Fase               | Status                                                                                                      |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| 0 · Descoberta     | ✅                                                                                                          |
+| 1 · Teste do motor | ✅ Modelo padrão: whisper-large-v3-turbo (falta medir numa máquina típica de agente)                        |
+| 2 · MVP completo   | ✅ Testado no Zendesk real (d3v-atveza, ticket 454): ⋯, transcrição, nota interna privada                   |
+| 3 · Piloto na SKA  | 🚧 Material pronto (build, loja, privacidade, DPO, guia); falta bancada na máquina do agente e os 20 áudios |
+| 4 · Liberação      | ⏳                                                                                                          |
 
 ## Requisitos
 
@@ -29,7 +30,8 @@ Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudi
 npm install
 npm run dev          # abre um Chrome com a extensão e recarrega a cada mudança
 npm run build        # gera .output/chrome-mv3 (build "dev": d3v-atveza e pdi-atveza)
-CLIENT=ska npm run build   # build para a SKA (clients/ska.json)
+npm run build:ska    # build da SKA em .output-ska/ (clients/ska.json)
+npm run zip:ska      # zip para a Chrome Web Store
 npm run check        # lint + formatação + tipos + testes + build
 npm run test:e2e     # Playwright com a extensão carregada (baixa o modelo na 1ª vez)
 npm run bench        # bancada da Fase 1 (abre um Chromium visível)

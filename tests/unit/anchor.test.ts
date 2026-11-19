@@ -22,6 +22,14 @@ describe('placePanel', () => {
     expect(p.maxHeight).toBe(600 - 100 - 8);
   });
 
+  it('covers the reply editor when neither side of a short conversation fits', () => {
+    // Laptop: conversation 200–520 px, editor below it; audio at 360–435.
+    const short = box(200, 520, 0, 800);
+    const p = placePanel(box(360, 435), short, 770);
+    expect(p).toMatchObject({ top: 439, bottom: null });
+    expect(p.maxHeight).toBe(770 - 435 - 16);
+  });
+
   it('hides when the player scrolls out of the conversation', () => {
     expect(placePanel(box(20, 80), clip, 900).visible).toBe(false);
     expect(placePanel(box(720, 780), clip, 900).visible).toBe(false);
