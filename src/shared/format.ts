@@ -15,3 +15,21 @@ export function formatDuration(seconds: number): string {
 export function formatPercent(value: number | null | undefined): string {
   return value === null || value === undefined ? '—' : `${(value * 100).toFixed(1)}%`;
 }
+
+/**
+ * Splits a transcript into short paragraphs for reading (display only; the saved
+ * note keeps the original text). A one-minute audio is a single wall of text
+ * otherwise. Breaks only at sentence ends.
+ */
+export function toParagraphs(text: string, sentencesPerParagraph = 3): string[] {
+  const sentences = text.match(/[^.!?…]+(?:[.!?…]+["'”»)]*|$)\s*/gu) ?? [text];
+  const paragraphs: string[] = [];
+  for (let i = 0; i < sentences.length; i += sentencesPerParagraph) {
+    const chunk = sentences
+      .slice(i, i + sentencesPerParagraph)
+      .join('')
+      .trim();
+    if (chunk) paragraphs.push(chunk);
+  }
+  return paragraphs.length ? paragraphs : [text];
+}

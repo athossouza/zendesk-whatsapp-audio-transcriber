@@ -269,12 +269,33 @@ button:focus-visible {
   padding: 4px 16px 10px;
 }
 
+/* Reading: ~62 characters per line and 1.5 line height (Baymard, WCAG 1.4.8 / 1.4.12). */
 .text {
-  margin: 0;
-  line-height: 20px;
-  white-space: pre-wrap;
+  max-width: 62ch;
+  line-height: 1.5;
   overflow-wrap: anywhere;
   user-select: text;
+}
+
+.text p {
+  margin: 0 0 0.75em;
+  white-space: pre-wrap;
+}
+
+.text p:last-child {
+  margin-bottom: 0;
+}
+
+.typing p:last-child::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 14px;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  opacity: 0.6;
+  animation: blink 1s steps(2) infinite;
 }
 
 .status {
@@ -320,7 +341,7 @@ progress::-webkit-progress-value {
   flex: none;
 }
 
-.typing::after {
+.status.typing::after {
   content: '';
   display: inline-block;
   width: 6px;
@@ -408,7 +429,8 @@ progress::-webkit-progress-value {
 
 @media (prefers-reduced-motion: reduce) {
   .spinner,
-  .typing::after {
+  .status.typing::after,
+  .typing p:last-child::after {
     animation: none;
   }
 }

@@ -1,5 +1,5 @@
 import { summarize, toCsv, type BenchRun } from '@/src/shared/bench';
-import { formatDuration, formatPercent, formatSeconds } from '@/src/shared/format';
+import { formatDuration, formatPercent, formatSeconds, toParagraphs } from '@/src/shared/format';
 
 const base: BenchRun = {
   model: 'onnx-community/whisper-base',
@@ -65,5 +65,19 @@ describe('format', () => {
     expect(formatSeconds(1234)).toBe('1.2 s');
     expect(formatSeconds(null)).toBe('—');
     expect(formatPercent(0.123)).toBe('12.3%');
+  });
+});
+
+describe('toParagraphs', () => {
+  it('groups up to 3 sentences per paragraph', () => {
+    const text = 'Um. Dois? Três! Quatro. Cinco… Seis. Sete';
+    expect(toParagraphs(text)).toEqual(['Um. Dois? Três!', 'Quatro. Cinco… Seis.', 'Sete']);
+  });
+
+  it('keeps short or unpunctuated text as one paragraph', () => {
+    expect(toParagraphs('Pode me mandar o boleto de novo, por favor?')).toEqual([
+      'Pode me mandar o boleto de novo, por favor?',
+    ]);
+    expect(toParagraphs('sem pontuação nenhuma')).toEqual(['sem pontuação nenhuma']);
   });
 });

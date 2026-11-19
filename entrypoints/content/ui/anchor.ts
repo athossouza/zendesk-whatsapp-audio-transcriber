@@ -26,8 +26,9 @@ export interface Placement {
 }
 
 const GAP = 4;
-const MIN_W = 280;
-const MAX_W = 560;
+const MIN_W = 300;
+/** ~62 characters per line at 14 px plus padding: 50–75 is the readable range (Baymard). */
+const MAX_W = 480;
 /** Smallest box that still reads well (about 6 lines plus header and footer). */
 const COMFORT_HEIGHT = 200;
 

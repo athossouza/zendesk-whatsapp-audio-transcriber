@@ -35,9 +35,9 @@ describe('placePanel', () => {
     expect(placePanel(box(720, 780), clip, 900).visible).toBe(false);
   });
 
-  it('keeps width between 280 and 560 px and inside the conversation', () => {
-    expect(placePanel(box(200, 260, 100, 100), clip, 900).width).toBe(280);
-    expect(placePanel(box(200, 260, 0, 900), clip, 900).width).toBe(560);
+  it('keeps width between 300 and 480 px (readable line length) and inside the conversation', () => {
+    expect(placePanel(box(200, 260, 100, 100), clip, 900).width).toBe(300);
+    expect(placePanel(box(200, 260, 0, 900), clip, 900).width).toBe(480);
     expect(placePanel(box(200, 260, 700, 300), clip, 900).left).toBe(800 - 300);
   });
 });

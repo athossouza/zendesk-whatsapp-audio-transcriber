@@ -1,6 +1,6 @@
 import { createPortal } from 'preact/compat';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { formatDuration, formatMb } from '@/src/shared/format';
+import { formatDuration, formatMb, toParagraphs } from '@/src/shared/format';
 import { shortModelName } from '@/src/shared/models';
 import { requestTranscription, type TranscribeHandle } from '@/src/shared/transcribe-client';
 import { markSavedAsNote } from '@/src/shared/transcript-cache';
@@ -391,7 +391,11 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
                 <progress value={state.loadedBytes} max={state.totalBytes} />
               )}
               {showText && (
-                <p class={state.kind === 'transcribing' ? 'text typing' : 'text'}>{showText}</p>
+                <div class={state.kind === 'transcribing' ? 'text typing' : 'text'}>
+                  {toParagraphs(showText).map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                </div>
               )}
               {state.kind === 'transcribing' && !showText && (
                 <div class="status">
