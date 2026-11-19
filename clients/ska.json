@@ -1,0 +1,9 @@
+{
+  "name": "ska",
+  "zendeskSubdomains": ["skasuporte", "pdi-atveza"],
+  "replacements": [
+    { "from": "edge cam", "to": "EDGECAM" },
+    { "from": "solid works", "to": "SOLIDWORKS" },
+    { "from": "drive works", "to": "DriveWorks" }
+  ]
+}

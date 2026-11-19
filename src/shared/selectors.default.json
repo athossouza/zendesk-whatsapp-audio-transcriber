@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-19",
+  "conversationRoot": ["[data-test-id='omni-log-container']", "[role='feed']", "[role='log']"],
+  "audioElements": ["audio[src]", "audio source[src]"],
+  "audioContainers": ["[data-test-id='audio-player-container']"],
+  "audioLinkExtensions": ["ogg", "opus", "mp3", "m4a", "aac", "wav", "webm", "amr"],
+  "textLabels": ["Gravação de WhatsApp", "WhatsApp recording", "Voice message"],
+  "downloadButton": [
+    "[data-test-id='audio-player-download']",
+    "button[aria-label*='download' i]",
+    "a[download]",
+    "[title*='baixar' i]"
+  ],
+  "messageBubble": ["[data-test-id='omni-log-comment-item']", "article"],
+  "messageAuthor": ["[data-test-id='omni-log-item-sender']"],
+  "messageTime": ["time[datetime]"]
+}

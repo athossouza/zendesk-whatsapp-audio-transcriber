@@ -1,0 +1,42 @@
+{
+  "name": "atveza-audio-transcriber",
+  "description": "Chrome extension that transcribes WhatsApp audio messages inside Zendesk Agent Workspace, locally with Whisper.",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "postinstall": "wxt prepare",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run build"
+  },
+  "dependencies": {
+    "preact": "10.29.8",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@preact/preset-vite": "2.10.6",
+    "@types/chrome": "0.3.7",
+    "@types/node": "22.20.5",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.14.0",
+    "jsdom": "29.1.1",
+    "prettier": "3.10.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.73.0",
+    "vitest": "5.1.1",
+    "wxt": "0.21.5"
+  }
+}

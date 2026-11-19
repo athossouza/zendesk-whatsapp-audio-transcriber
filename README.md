@@ -1,0 +1,67 @@
+# ATVEZA · Transcrever Áudio para Zendesk
+
+Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudios de WhatsApp que chegam aos tickets do Agent Workspace do Zendesk. O modelo Whisper roda no navegador (WebGPU, com WASM como reserva): o áudio não sai da máquina e não há custo por transcrição.
+
+- Especificação (fonte da verdade): [`docs/especificacao-tecnica.md`](docs/especificacao-tecnica.md)
+- Relatório da Fase 0: [`docs/fase-0-relatorio.md`](docs/fase-0-relatorio.md)
+
+## Status
+
+| Fase               | Status                                                                       |
+| ------------------ | ---------------------------------------------------------------------------- |
+| 0 · Descoberta     | ✅ Código pronto; falta a validação com a extensão carregada (ver relatório) |
+| 1 · Teste do motor | ⏳                                                                           |
+| 2 · MVP completo   | ⏳                                                                           |
+| 3 · Piloto na SKA  | ⏳                                                                           |
+| 4 · Liberação      | ⏳                                                                           |
+
+## Requisitos
+
+- Node.js 22 (`.nvmrc`)
+- Google Chrome ou Edge 124 ou superior
+
+## Desenvolvimento
+
+```bash
+npm install
+npm run dev          # abre um Chrome com a extensão e recarrega a cada mudança
+npm run build        # gera .output/chrome-mv3 (build "dev": d3v-atveza e pdi-atveza)
+CLIENT=ska npm run build   # build para a SKA (clients/ska.json)
+npm run check        # lint + formatação + tipos + testes + build
+```
+
+### Carregar a extensão no Chrome
+
+1. `npm run build`
+2. Abra `chrome://extensions` e ligue o **Modo do desenvolvedor**.
+3. Clique em **Carregar sem compactação** e escolha a pasta `.output/chrome-mv3`.
+4. Depois de cada novo build, clique em ↻ no card da extensão e recarregue a aba do Zendesk.
+
+### Modo descoberta (Fase 0)
+
+1. Nas opções da extensão, ligue **Modo descoberta**.
+2. Abra tickets com áudio no Zendesk. No console da página aparecem linhas `[atveza] discovery`.
+3. Nas opções, clique em **Copiar relatório de descoberta**. O relatório não tem nomes, textos nem URLs de clientes.
+
+## Estrutura
+
+```
+clients/            # configuração por cliente (subdomínios, dicionário)
+entrypoints/
+  content/          # content script: observa a página e detecta os áudios
+  options/          # página de opções (Preact)
+src/shared/         # seletores, configurações, descoberta, utilitários
+tests/
+  fixtures/         # estrutura anonimizada do Agent Workspace
+  unit/             # Vitest + jsdom
+docs/               # especificação e relatórios por fase
+```
+
+## Regras do projeto
+
+As regras da seção 15 da especificação valem para todo o código. As principais:
+
+- Nenhum seletor do Zendesk fica fixo no código: todos vêm de `selectors.default.json`.
+- Nenhum código remoto, telemetria ou API de IA externa.
+- O texto da transcrição entra na página só via `textContent` (o ESLint bloqueia `innerHTML`).
+- Interface em português do Brasil; código e comentários em inglês.

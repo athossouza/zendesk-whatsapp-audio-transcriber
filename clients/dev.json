@@ -1,0 +1,5 @@
+{
+  "name": "dev",
+  "zendeskSubdomains": ["d3v-atveza", "pdi-atveza"],
+  "replacements": []
+}
