@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "properties": {
+    "model": {
+      "title": "Modelo de transcrição",
+      "description": "ID do modelo na Hugging Face (ex.: onnx-community/whisper-large-v3-turbo).",
+      "type": "string"
+    },
+    "language": {
+      "title": "Idioma dos áudios",
+      "type": "string",
+      "enum": ["portuguese", "english", "spanish", "auto"]
+    },
+    "enabled": { "title": "Mostrar o botão nos áudios", "type": "boolean" },
+    "autoSaveNote": { "title": "Salvar nota interna automaticamente", "type": "boolean" },
+    "replacements": {
+      "title": "Dicionário de correções",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": { "from": { "type": "string" }, "to": { "type": "string" } }
+      }
+    },
+    "hallucinationFilters": {
+      "title": "Frases a remover",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "modelMirror": { "title": "Espelho interno do modelo (URL HTTPS)", "type": "string" },
+    "selectorsUrl": { "title": "URL da configuração de seletores", "type": "string" },
+    "allowedSubdomains": {
+      "title": "Subdomínios do Zendesk permitidos",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "maxAudioMinutes": { "title": "Duração máxima do áudio (minutos)", "type": "integer" },
+    "debug": { "title": "Logs detalhados no console", "type": "boolean" }
+  }
+}

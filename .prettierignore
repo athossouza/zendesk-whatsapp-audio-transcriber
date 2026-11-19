@@ -6,3 +6,4 @@ docs/especificacao-tecnica.md
 .output-e2e
 test-results
 bench-results
+.output-*

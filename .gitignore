@@ -12,3 +12,4 @@ bench-results/
 test-results/
 playwright-report/
 .output-e2e/
+.output-*/

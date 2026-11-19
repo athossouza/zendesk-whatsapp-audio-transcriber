@@ -16,6 +16,7 @@ import {
   type ToOffscreen,
   type TranscribeRequest,
 } from '@/src/shared/messages';
+import { logError } from '@/src/shared/error-log';
 import { loadSettings } from '@/src/shared/settings';
 import { saveTranscript } from '@/src/shared/transcript-cache';
 
@@ -80,6 +81,7 @@ export default defineBackground({
         // Benchmarks and option-page tests use ticketId 0: not cached.
         if (msg.result.ticketId > 0) void saveTranscript(msg.result);
       }
+      if (msg.type === 'ERROR') void logError(msg.code, msg.detail);
       if (msg.type === 'DONE' || msg.type === 'ERROR') routes.delete(msg.requestId);
       try {
         port?.postMessage(msg);

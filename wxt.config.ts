@@ -19,8 +19,18 @@ const ORT_DIST = resolve(import.meta.dirname, 'node_modules/onnxruntime-web/dist
 const ORT_FILES = ['ort-wasm-simd-threaded.asyncify.wasm', 'ort-wasm-simd-threaded.asyncify.mjs'];
 
 export default defineConfig({
-  // The e2e build (open shadow roots) never shares a folder with the real one.
-  outDir: process.env.WXT_E2E === '1' ? '.output-e2e' : '.output',
+  // Separate folders: e2e build (open shadow roots) and each client build never
+  // overwrite the dev build loaded unpacked in Chrome (its ID depends on the path).
+  outDir:
+    process.env.WXT_E2E === '1'
+      ? '.output-e2e'
+      : clientName === 'dev'
+        ? '.output'
+        : `.output-${clientName}`,
+  zip: {
+    // e.g. zendesk-whatsapp-audio-transcriber-ska-0.2.0-chrome.zip
+    artifactTemplate: `{{name}}-${clientName}-{{version}}-{{browser}}.zip`,
+  },
   vite: () => ({
     plugins: [preact()],
     resolve: {
@@ -36,6 +46,9 @@ export default defineConfig({
     name: 'ATVEZA · Transcrever Áudio para Zendesk',
     description: 'Transcreve áudios de WhatsApp no Zendesk, direto no seu computador.',
     minimum_chrome_version: '124',
+    icons: { 16: 'icons/16.png', 32: 'icons/32.png', 48: 'icons/48.png', 128: 'icons/128.png' },
+    // Lets IT lock settings company-wide via Chrome policy (spec section 9).
+    storage: { managed_schema: 'managed_schema.json' },
     permissions: ['storage', 'offscreen'],
     host_permissions: [
       ...zendeskHosts,

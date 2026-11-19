@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { clearDiscoveryEntries, readDiscoveryReport } from '@/src/shared/discovery-store';
+import { buildDiagnostics, managedKeys } from '@/src/shared/diagnostics';
 import { MODEL_PRESETS } from '@/src/shared/models';
 import { clearModelCache } from '@/src/shared/model-cache';
 import { loadSettings, saveSettings, type Settings } from '@/src/shared/settings';
@@ -19,11 +20,13 @@ export function App() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [entryCount, setEntryCount] = useState(0);
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
+  const [locked, setLocked] = useState<string[]>([]);
 
   const refreshCount = () => readDiscoveryReport().then((r) => setEntryCount(r.entries.length));
 
   useEffect(() => {
     void loadSettings().then(setSettings);
+    void managedKeys().then(setLocked);
     void refreshCount();
     const onChange = (_c: unknown, area: string) => area === 'local' && void refreshCount();
     chrome.storage.onChanged.addListener(onChange);
@@ -66,14 +69,19 @@ export function App() {
 
       <section>
         <h2>Geral</h2>
+        {locked.length > 0 && (
+          <p class="muted">Algumas opções foram definidas pelo administrador da empresa.</p>
+        )}
         <Toggle
           label="Mostrar o ⋯ nos áudios"
+          disabled={locked.includes('enabled')}
           checked={settings.enabled}
           onChange={(v) => update('enabled', v)}
         />
         <label class="field">
           Modelo
           <select
+            disabled={locked.includes('model')}
             value={settings.model}
             onChange={(e) => update('model', (e.currentTarget as HTMLSelectElement).value)}
           >
@@ -87,6 +95,7 @@ export function App() {
         <label class="field">
           Idioma dos áudios
           <select
+            disabled={locked.includes('language')}
             value={settings.language}
             onChange={(e) =>
               update(
@@ -104,6 +113,7 @@ export function App() {
         </label>
         <Toggle
           label="Logs detalhados no console"
+          disabled={locked.includes('debug')}
           checked={settings.debug}
           onChange={(v) => update('debug', v)}
         />
@@ -129,6 +139,22 @@ export function App() {
             }
           >
             Remover modelos baixados
+          </button>
+          <button
+            type="button"
+            class="secondary"
+            onClick={() =>
+              run(
+                async () => {
+                  const diag = await buildDiagnostics();
+                  await navigator.clipboard.writeText(JSON.stringify(diag, null, 2));
+                },
+                'Diagnóstico copiado. Cole na mensagem para o suporte.',
+                'Não consegui copiar o diagnóstico.',
+              )
+            }
+          >
+            Copiar diagnóstico
           </button>
           <a class="button secondary" href="/benchmark.html" target="_blank">
             Bancada de testes (Fase 1)
@@ -173,11 +199,18 @@ export function App() {
   );
 }
 
-function Toggle(props: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle(props: {
+  label: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (v: boolean) => void;
+}) {
   return (
     <label class="toggle">
       <input
         type="checkbox"
+        disabled={props.disabled}
+        title={props.disabled ? 'Definido pelo administrador' : undefined}
         checked={props.checked}
         onChange={(e) => props.onChange((e.currentTarget as HTMLInputElement).checked)}
       />

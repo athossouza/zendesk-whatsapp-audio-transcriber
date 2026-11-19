@@ -2,7 +2,7 @@
   "name": "zendesk-whatsapp-audio-transcriber",
   "description": "Chrome extension that transcribes WhatsApp audio messages inside Zendesk Agent Workspace, locally with Whisper.",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -21,7 +21,9 @@
     "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run build",
     "test:e2e": "npm run build:e2e && playwright test",
     "bench": "npm run build:e2e && BENCH=1 HEADED=1 playwright test bench",
-    "build:e2e": "WXT_E2E=1 wxt build"
+    "build:e2e": "WXT_E2E=1 wxt build",
+    "build:ska": "CLIENT=ska wxt build",
+    "zip:ska": "CLIENT=ska wxt zip"
   },
   "dependencies": {
     "@huggingface/transformers": "4.3.2",
