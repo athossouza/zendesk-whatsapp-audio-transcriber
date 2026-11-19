@@ -68,7 +68,7 @@ Marcar também as três certificações: não vende dados, não usa para fins n�
 ## Antes de enviar
 
 - [ ] Política de privacidade publicada numa URL pública, com o e-mail de contato confirmado.
-- [ ] Capturas de tela aprovadas (sem dados de clientes reais).
+- [x] Capturas de tela aprovadas por Athos em 19/11/2026 (ticket de teste, sem dados de clientes reais).
 - [ ] `npm run check` e `npm run test:e2e` passando.
 - [ ] Teste manual da versão SKA em pdi-atveza (carregar `.output-ska/chrome-mv3` sem compactação).
 - [ ] Revisão da loja leva de horas a alguns dias: contar com isso no cronograma.
