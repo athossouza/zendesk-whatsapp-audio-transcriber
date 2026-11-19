@@ -88,12 +88,11 @@ async function start(): Promise<void> {
 
   async function setup(c: AudioCandidate, ticketId: number, index: number): Promise<void> {
     if (!subdomain) return;
-    const duration = c.durationSeconds ?? (await waitForDuration(c.player));
+    const duration = c.durationSeconds;
     const audioKey = await computeAudioKey({
       subdomain,
       ticketId,
       time: c.time,
-      durationSeconds: duration,
       index,
       url: c.src,
     });
@@ -130,7 +129,13 @@ async function start(): Promise<void> {
     checkNotes: boolean,
   ): Promise<KnownTranscript | null> {
     const cached = (await getTranscripts([audioKey]))[audioKey];
-    if (cached) return { text: cached.text, model: cached.model, savedAsNote: cached.savedAsNote };
+    if (cached)
+      return {
+        text: cached.text,
+        model: cached.model,
+        savedAsNote: cached.savedAsNote,
+        audioSeconds: cached.audioSeconds,
+      };
     if (!checkNotes) return null;
     let notes = notesByTicket.get(ticketId);
     if (!notes) {
@@ -138,7 +143,7 @@ async function start(): Promise<void> {
       notesByTicket.set(ticketId, notes);
     }
     const text = (await notes).get(audioKey);
-    return text ? { text, model: null, savedAsNote: true } : null;
+    return text ? { text, model: null, savedAsNote: true, audioSeconds: null } : null;
   }
 
   /** Spec section 6, step 2: read the player's blob: URL from the page context. */
@@ -182,19 +187,5 @@ async function start(): Promise<void> {
       log('navigated', path);
       notesByTicket.clear();
     },
-  });
-}
-
-/** Waits (max 3 s) for the <audio> metadata so the duration is part of the key. */
-function waitForDuration(player: Element): Promise<number | null> {
-  const audio = player instanceof HTMLAudioElement ? player : player.querySelector('audio');
-  if (!audio) return Promise.resolve(null);
-  const read = () =>
-    Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : null;
-  if (read() !== null) return Promise.resolve(read());
-  return new Promise((resolve) => {
-    const done = () => resolve(read());
-    audio.addEventListener('loadedmetadata', done, { once: true });
-    setTimeout(done, 3000);
   });
 }

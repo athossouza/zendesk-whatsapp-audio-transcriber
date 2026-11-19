@@ -138,7 +138,6 @@ describe('computeAudioKey', () => {
     subdomain: 'd3v-atveza',
     ticketId: 454,
     time: '2026-11-19T17:11:52.353Z',
-    durationSeconds: 6.9465,
     index: 0,
   };
 
@@ -146,10 +145,9 @@ describe('computeAudioKey', () => {
     const a = await computeAudioKey(base);
     expect(a).toMatch(/^[a-f0-9]{32}$/);
     expect(await computeAudioKey({ ...base, url: 'blob:https://x/1' })).toBe(a);
-    expect(await computeAudioKey({ ...base, durationSeconds: 6.92 })).toBe(a);
   });
 
-  it('changes with ticket, time or position; uses canonical https URLs', async () => {
+  it('changes with ticket, time or position (never duration); uses canonical https URLs', async () => {
     const a = await computeAudioKey(base);
     expect(await computeAudioKey({ ...base, ticketId: 455 })).not.toBe(a);
     expect(await computeAudioKey({ ...base, index: 1 })).not.toBe(a);

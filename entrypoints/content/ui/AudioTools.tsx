@@ -37,6 +37,8 @@ export interface KnownTranscript {
   text: string;
   model: string | null;
   savedAsNote: boolean;
+  /** Duration measured when decoding (reliable, unlike the player's). */
+  audioSeconds: number | null;
 }
 
 type NoteState =
@@ -179,7 +181,12 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
     const out = await handle.current.done;
     handle.current = null;
     if (out.type === 'DONE' && out.result.text) {
-      const next = { text: out.result.text, model: out.result.model, savedAsNote: false };
+      const next: KnownTranscript = {
+        text: out.result.text,
+        model: out.result.model,
+        savedAsNote: false,
+        audioSeconds: out.result.audioSeconds,
+      };
       setKnown(next);
       if (ctx.autoSaveNote) void saveNote(next);
     }
@@ -199,7 +206,7 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
         buildNoteBody({
           author: ctx.author,
           time: ctx.time,
-          durationSeconds: ctx.durationSeconds,
+          durationSeconds: t.audioSeconds ?? ctx.durationSeconds,
           text: t.text,
           model: t.model ?? 'whisper',
           audioKey: ctx.audioKey,
@@ -236,7 +243,8 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
     }
   };
 
-  const showText = state.kind === 'transcribing' ? state.text : text;
+  // While (re)transcribing, show only the new text, never the previous one.
+  const showText = state.kind === 'transcribing' ? state.text : busy ? null : text;
 
   return (
     <div class="more">
@@ -326,8 +334,7 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
             <div class="head">
               <strong>Transcrição</strong>
               <span>
-                {ctx.durationSeconds !== null && formatDuration(ctx.durationSeconds)}
-                {known?.model && ` · ${shortModelName(known.model)}`}
+                {headerDetails(known?.audioSeconds ?? ctx.durationSeconds, known?.model ?? null)}
               </span>
             </div>
 
@@ -400,4 +407,10 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
         )}
     </div>
   );
+}
+
+function headerDetails(seconds: number | null, model: string | null): string {
+  return [seconds === null ? null : formatDuration(seconds), model && shortModelName(model)]
+    .filter(Boolean)
+    .join(' · ');
 }
