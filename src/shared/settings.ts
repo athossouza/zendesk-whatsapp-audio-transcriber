@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { DEFAULT_MODEL } from './models';
 
 /** User settings (spec section 9). Stored in chrome.storage.sync, overridable by managed policy. */
 export const SettingsSchema = z.object({
-  model: z.string().default('onnx-community/whisper-small'),
+  model: z.string().default(DEFAULT_MODEL),
   language: z.enum(['portuguese', 'english', 'spanish', 'auto']).default('portuguese'),
   enabled: z.boolean().default(true),
   autoTranscribe: z.boolean().default(false),

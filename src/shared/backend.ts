@@ -29,7 +29,10 @@ export interface EngineChoice {
 export function chooseEngine(req: EngineRequest, gpu: GpuInfo): EngineChoice {
   const wanted = req.device ?? 'auto';
   const device: Device = wanted === 'auto' ? (gpu.webgpu ? 'webgpu' : 'wasm') : wanted;
-  const downgraded = wanted === 'auto' && device === 'wasm' && req.model !== WASM_FALLBACK_MODEL;
+  const requestedMb = findPreset(req.model)?.approxMb ?? Infinity;
+  const fallbackMb = findPreset(WASM_FALLBACK_MODEL)?.approxMb ?? 0;
+  // Only swap models that are heavier than the WASM fallback.
+  const downgraded = wanted === 'auto' && device === 'wasm' && requestedMb > fallbackMb;
   const model = downgraded ? WASM_FALLBACK_MODEL : req.model;
   const preset = findPreset(model);
 

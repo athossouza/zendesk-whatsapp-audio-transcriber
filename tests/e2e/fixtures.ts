@@ -1,9 +1,14 @@
+import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import { test as base, chromium, type BrowserContext } from '@playwright/test';
 
-const EXTENSION = resolve(import.meta.dirname, '../../.output/chrome-mv3');
+const EXTENSION = resolve(import.meta.dirname, '../../.output-e2e/chrome-mv3');
 /** Persistent profile so the model is downloaded only once between runs. */
-const PROFILE = resolve(import.meta.dirname, '../../.playwright-profile');
+// Kept outside the project: the models are ~1.5 GB and project folders may be
+// synced (iCloud/Drive), which stalls file access.
+const PROFILE =
+  process.env.PW_PROFILE ??
+  resolve(homedir(), 'Library/Caches/zendesk-whatsapp-audio-transcriber/playwright-profile');
 
 export const test = base.extend<{ context: BrowserContext; extensionId: string }>({
   // eslint-disable-next-line no-empty-pattern

@@ -1,0 +1,354 @@
+import { createPortal } from 'preact/compat';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { formatDuration, formatMb } from '@/src/shared/format';
+import { shortModelName } from '@/src/shared/models';
+import { requestTranscription, type TranscribeHandle } from '@/src/shared/transcribe-client';
+import { markSavedAsNote } from '@/src/shared/transcript-cache';
+import {
+  reduceProgress,
+  stateLabel,
+  type TranscriptionState,
+} from '@/src/shared/transcription-state';
+import { buildNoteBody, NoteError, noteErrorMessage, type ZendeskApi } from '../zendesk-api';
+
+export interface AudioContextInfo {
+  audioKey: string;
+  ticketId: number;
+  subdomain: string;
+  author: string | null;
+  time: string | null;
+  durationSeconds: number | null;
+  getAudio: () => Promise<{ base64: string; mime?: string }>;
+  api: ZendeskApi;
+  /** Where the transcription box is rendered (below the player). */
+  panelRoot: ShadowRoot;
+  autoSaveNote: boolean;
+}
+
+export interface KnownTranscript {
+  text: string;
+  model: string | null;
+  savedAsNote: boolean;
+}
+
+type NoteState =
+  | { kind: 'idle' }
+  | { kind: 'saving' }
+  | { kind: 'saved' }
+  | { kind: 'already' }
+  | { kind: 'error'; message: string; retry: boolean };
+
+export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscript | null }) {
+  const { ctx } = props;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [state, setState] = useState<TranscriptionState>({ kind: 'idle' });
+  const [known, setKnown] = useState<KnownTranscript | null>(props.known);
+  const [note, setNote] = useState<NoteState>(
+    props.known?.savedAsNote ? { kind: 'saved' } : { kind: 'idle' },
+  );
+  const handle = useRef<TranscribeHandle | null>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const firstItem = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+
+  const busy = !['idle', 'done', 'error'].includes(state.kind);
+  const text = known?.text ?? null;
+
+  useEffect(() => setKnown(props.known), [props.known]);
+  useEffect(() => {
+    if (menuOpen) firstItem.current?.focus();
+  }, [menuOpen]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (e: Event) => {
+      if (!e.composedPath().some((n) => n === button.current?.parentElement)) setMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', close, true);
+    return () => document.removeEventListener('pointerdown', close, true);
+  }, [menuOpen]);
+  // Cancel if the audio leaves the page (component unmounted).
+  useEffect(() => () => handle.current?.cancel(), []);
+
+  const closePanel = () => {
+    handle.current?.cancel();
+    setPanelOpen(false);
+    button.current?.focus();
+  };
+
+  // Buttons that disappear (e.g. "Salvar" after saving) would drop focus to <body>:
+  // keep it inside the box so Tab and Esc keep working.
+  useEffect(() => {
+    if (!panelOpen) return;
+    const active =
+      panel.current?.getRootNode() instanceof ShadowRoot
+        ? (panel.current.getRootNode() as ShadowRoot).activeElement
+        : null;
+    if (!active) panel.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
+  }, [panelOpen, note.kind, state.kind]);
+
+  // Esc also closes the box when nothing on the page has focus.
+  useEffect(() => {
+    if (!panelOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      const idle = !document.activeElement || document.activeElement === document.body;
+      if (e.key === 'Escape' && idle) closePanel();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+    // closePanel only touches refs and setters.
+  }, [panelOpen]);
+
+  const transcribe = async () => {
+    setMenuOpen(false);
+    setPanelOpen(true);
+    setNote({ kind: 'idle' });
+    let current: TranscriptionState = { kind: 'decoding' };
+    setState(current);
+    let audio: { base64: string; mime?: string };
+    try {
+      audio = await ctx.getAudio();
+    } catch {
+      setState({
+        kind: 'error',
+        message: 'Não consegui acessar este áudio. Recarregue o ticket e tente de novo.',
+      });
+      return;
+    }
+    handle.current = requestTranscription(
+      {
+        audioKey: ctx.audioKey,
+        ticketId: ctx.ticketId,
+        subdomain: ctx.subdomain,
+        base64: audio.base64,
+        mime: audio.mime,
+      },
+      (p) => {
+        current = reduceProgress(current, p);
+        setState(current);
+        if (p.type === 'ERROR' && p.code === 'CANCELLED') setPanelOpen(false);
+      },
+    );
+    const out = await handle.current.done;
+    handle.current = null;
+    if (out.type === 'DONE' && out.result.text) {
+      const next = { text: out.result.text, model: out.result.model, savedAsNote: false };
+      setKnown(next);
+      if (ctx.autoSaveNote) void saveNote(next);
+    }
+  };
+
+  const saveNote = async (t: KnownTranscript | null = known) => {
+    if (!t) return;
+    setNote({ kind: 'saving' });
+    try {
+      const existing = await ctx.api.listTranscriptNotes(ctx.ticketId);
+      if (existing.has(ctx.audioKey)) {
+        setNote({ kind: 'already' });
+        return;
+      }
+      await ctx.api.saveInternalNote(
+        ctx.ticketId,
+        buildNoteBody({
+          author: ctx.author,
+          time: ctx.time,
+          durationSeconds: ctx.durationSeconds,
+          text: t.text,
+          model: t.model ?? 'whisper',
+          audioKey: ctx.audioKey,
+        }),
+      );
+      await markSavedAsNote(ctx.audioKey);
+      setKnown({ ...t, savedAsNote: true });
+      setNote({ kind: 'saved' });
+    } catch (err) {
+      const kind = err instanceof NoteError ? err.kind : 'SERVER';
+      setNote({
+        kind: 'error',
+        message: noteErrorMessage(kind),
+        retry: kind !== 'FORBIDDEN' && kind !== 'UNPROCESSABLE',
+      });
+    }
+  };
+
+  const copy = async () => {
+    if (text) await navigator.clipboard.writeText(text);
+  };
+
+  const onMenuKey = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setMenuOpen(false);
+      button.current?.focus();
+    }
+  };
+
+  const onPanelKey = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      closePanel();
+    }
+  };
+
+  const showText = state.kind === 'transcribing' ? state.text : text;
+
+  return (
+    <div class="more">
+      <button
+        ref={button}
+        type="button"
+        class="more-btn"
+        aria-label="Mais ações do áudio"
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        title="Transcrever áudio"
+        onClick={() => {
+          if (panelOpen) closePanel();
+          else setMenuOpen(!menuOpen);
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="3" cy="8" r="1.5" fill="currentColor" />
+          <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+          <circle cx="13" cy="8" r="1.5" fill="currentColor" />
+        </svg>
+        {text && <span class="dot" aria-hidden="true" />}
+      </button>
+
+      {menuOpen && (
+        <ul class="menu" role="menu" onKeyDown={onMenuKey}>
+          <li role="none">
+            <button
+              ref={firstItem}
+              type="button"
+              role="menuitem"
+              class="item"
+              onClick={() => {
+                if (text) {
+                  setMenuOpen(false);
+                  setPanelOpen(true);
+                } else void transcribe();
+              }}
+            >
+              {text ? 'Ver transcrição' : 'Transcrever'}
+            </button>
+          </li>
+          <li role="none">
+            <button
+              type="button"
+              role="menuitem"
+              class="item"
+              disabled={!text}
+              onClick={() => {
+                void copy();
+                setMenuOpen(false);
+              }}
+            >
+              Copiar transcrição
+            </button>
+          </li>
+          <li role="none">
+            <button
+              type="button"
+              role="menuitem"
+              class="item"
+              disabled={!text || note.kind === 'saved'}
+              onClick={() => {
+                setMenuOpen(false);
+                setPanelOpen(true);
+                void saveNote();
+              }}
+            >
+              Salvar como nota interna
+            </button>
+          </li>
+        </ul>
+      )}
+
+      {panelOpen &&
+        createPortal(
+          <div
+            ref={panel}
+            class="panel"
+            role="dialog"
+            aria-label="Transcrição do áudio"
+            aria-modal="false"
+            onKeyDown={onPanelKey}
+          >
+            <div class="head">
+              <strong>Transcrição</strong>
+              <span>
+                {ctx.durationSeconds !== null && formatDuration(ctx.durationSeconds)}
+                {known?.model && ` · ${shortModelName(known.model)}`}
+              </span>
+            </div>
+
+            <div class="body" aria-live="polite">
+              {busy && state.kind !== 'transcribing' && (
+                <div class="status">
+                  {stateLabel(state)}
+                  {state.kind === 'downloading' &&
+                    state.totalBytes > 0 &&
+                    ` · ${formatMb(state.loadedBytes)} de ${formatMb(state.totalBytes)}`}
+                  {state.kind === 'downloading' && state.totalBytes > 0 && (
+                    <progress value={state.loadedBytes} max={state.totalBytes} />
+                  )}
+                </div>
+              )}
+              {showText && (
+                <span class={state.kind === 'transcribing' ? 'typing' : ''}>{showText}</span>
+              )}
+              {state.kind === 'transcribing' && !showText && (
+                <span class="status typing">Transcrevendo</span>
+              )}
+              {state.kind === 'error' && <div class="status error">{state.message}</div>}
+            </div>
+
+            {note.kind === 'saving' && <div class="status">Salvando no ticket…</div>}
+            {note.kind === 'saved' && <div class="status ok">✓ Salva no ticket</div>}
+            {note.kind === 'already' && <div class="status ok">✓ Já salva neste ticket</div>}
+            {note.kind === 'error' && <div class="status error">{note.message}</div>}
+
+            <div class="actions">
+              {busy && (
+                <button type="button" class="btn" onClick={closePanel}>
+                  Cancelar
+                </button>
+              )}
+              {!busy && text && (
+                <>
+                  <button type="button" class="btn" onClick={() => void copy()}>
+                    Copiar
+                  </button>
+                  {note.kind !== 'saved' && note.kind !== 'already' && (
+                    <button
+                      type="button"
+                      class="btn primary"
+                      disabled={note.kind === 'saving' || (note.kind === 'error' && !note.retry)}
+                      onClick={() => void saveNote()}
+                    >
+                      Salvar como nota interna
+                    </button>
+                  )}
+                  <button type="button" class="btn" onClick={() => void transcribe()}>
+                    Transcrever de novo
+                  </button>
+                </>
+              )}
+              {!busy && state.kind === 'error' && (
+                <button type="button" class="btn" onClick={() => void transcribe()}>
+                  Tentar de novo
+                </button>
+              )}
+              {!busy && (
+                <button type="button" class="btn" onClick={closePanel}>
+                  Fechar
+                </button>
+              )}
+            </div>
+            <div class="foot">Gerado por IA no seu computador. Confira antes de usar.</div>
+          </div>,
+          ctx.panelRoot as unknown as Element,
+        )}
+    </div>
+  );
+}

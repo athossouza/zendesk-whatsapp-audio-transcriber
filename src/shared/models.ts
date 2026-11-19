@@ -52,8 +52,15 @@ export const MODEL_PRESETS: readonly ModelPreset[] = [
   },
 ];
 
-/** Model used when there is no WebGPU (spec section 7, step 3). */
-export const WASM_FALLBACK_MODEL = 'onnx-community/whisper-base';
+/**
+ * Model used when there is no WebGPU (spec section 7, step 3).
+ * Phase 1 changed it from whisper-base to whisper-small: base dropped negations
+ * ("não foi encontrado" -> "foi encontrado") and had ~21% WER on the PT-BR set.
+ */
+export const WASM_FALLBACK_MODEL = 'onnx-community/whisper-small';
+
+/** Default model chosen in Phase 1 (docs/fase-1-relatorio.md). */
+export const DEFAULT_MODEL = 'onnx-community/whisper-large-v3-turbo';
 
 export function findPreset(id: string): ModelPreset | undefined {
   return MODEL_PRESETS.find((m) => m.id === id);

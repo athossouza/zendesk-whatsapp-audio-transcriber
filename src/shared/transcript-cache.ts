@@ -37,6 +37,12 @@ export async function pruneTranscripts(now = Date.now()): Promise<void> {
   if (remove.length) await chrome.storage.local.remove(remove.map((r) => r.key));
 }
 
+export async function markSavedAsNote(audioKey: string): Promise<void> {
+  const key = PREFIX + audioKey;
+  const stored = (await chrome.storage.local.get(key))[key] as TranscriptResult | undefined;
+  if (stored) await chrome.storage.local.set({ [key]: { ...stored, savedAsNote: true } });
+}
+
 export async function clearTranscripts(): Promise<void> {
   const all = await chrome.storage.local.get(null);
   await chrome.storage.local.remove(Object.keys(all).filter((k) => k.startsWith(PREFIX)));

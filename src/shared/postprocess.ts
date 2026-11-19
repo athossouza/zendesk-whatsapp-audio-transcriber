@@ -14,7 +14,24 @@ export function postprocess(raw: string, opts: PostprocessOptions): string {
   text = collapseRepeats(text);
   text = applyReplacements(text, opts.replacements);
   text = normalizeSpaces(text);
+  if (isFillerOnly(text)) return '';
   return /[\p{L}\p{N}]/u.test(text) ? text : '';
+}
+
+/**
+ * Whisper often "hears" a lone filler in silence or noise (Phase 1: "A", "e", "E aí").
+ * Only the whole text is checked, so real short answers like "Sim." survive.
+ */
+const FILLERS = new Set(['a', 'e', 'o', 'e ai', 'ah', 'eh', 'hum', 'hmm', 'uh', 'um', 'oh', 'ai']);
+
+export function isFillerOnly(text: string): boolean {
+  const norm = text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+  return FILLERS.has(norm);
 }
 
 function normalizeSpaces(text: string): string {

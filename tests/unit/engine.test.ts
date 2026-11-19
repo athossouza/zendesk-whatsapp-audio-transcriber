@@ -7,6 +7,7 @@ import { wordErrorRate } from '@/src/shared/wer';
 
 const SMALL = 'onnx-community/whisper-small';
 const BASE = 'onnx-community/whisper-base';
+const TURBO = 'onnx-community/whisper-large-v3-turbo';
 
 describe('chooseEngine (spec section 7)', () => {
   it('uses WebGPU with fp16 encoder + q4 decoder when shader-f16 exists', () => {
@@ -22,12 +23,17 @@ describe('chooseEngine (spec section 7)', () => {
     expect(chooseEngine({ model: SMALL }, { webgpu: true, shaderF16: false }).dtype).toBe('fp32');
   });
 
-  it('falls back to whisper-base on WASM when there is no WebGPU', () => {
-    expect(chooseEngine({ model: SMALL }, { webgpu: false, shaderF16: false })).toEqual({
-      model: BASE,
+  it('falls back to whisper-small on WASM when there is no WebGPU (Phase 1 decision)', () => {
+    expect(chooseEngine({ model: TURBO }, { webgpu: false, shaderF16: false })).toEqual({
+      model: SMALL,
       device: 'wasm',
       dtype: 'q8',
       downgraded: true,
+    });
+    // A lighter model than the fallback is kept as is.
+    expect(chooseEngine({ model: BASE }, { webgpu: false, shaderF16: false })).toMatchObject({
+      model: BASE,
+      downgraded: false,
     });
   });
 
@@ -66,6 +72,12 @@ describe('postprocess (spec section 7)', () => {
     expect(postprocess('Bom dia, preciso de ajuda. Obrigado por assistir.', opts)).toBe(
       'Bom dia, preciso de ajuda.',
     );
+  });
+
+  it('drops lone fillers heard in silence but keeps short real answers', () => {
+    for (const filler of ['A', 'e', 'E aí', 'Hum...']) expect(postprocess(filler, opts)).toBe('');
+    expect(postprocess('Sim.', opts)).toBe('Sim.');
+    expect(postprocess('Não', opts)).toBe('Não');
   });
 
   it('collapses a sentence repeated 3+ times, but not 2', () => {

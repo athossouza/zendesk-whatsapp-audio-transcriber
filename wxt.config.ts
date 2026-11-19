@@ -19,6 +19,8 @@ const ORT_DIST = resolve(import.meta.dirname, 'node_modules/onnxruntime-web/dist
 const ORT_FILES = ['ort-wasm-simd-threaded.asyncify.wasm', 'ort-wasm-simd-threaded.asyncify.mjs'];
 
 export default defineConfig({
+  // The e2e build (open shadow roots) never shares a folder with the real one.
+  outDir: process.env.WXT_E2E === '1' ? '.output-e2e' : '.output',
   vite: () => ({
     plugins: [preact()],
     resolve: {

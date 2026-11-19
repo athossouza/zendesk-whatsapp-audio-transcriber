@@ -11,3 +11,4 @@ web-ext.config.ts
 bench-results/
 test-results/
 playwright-report/
+.output-e2e/
