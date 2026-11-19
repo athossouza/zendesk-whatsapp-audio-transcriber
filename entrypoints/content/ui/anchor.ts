@@ -48,13 +48,14 @@ export function placePanel(anchor: Box, clip: Box, viewportHeight: number): Plac
   const above = anchor.top - clip.top - GAP * 2;
   const belowPage = viewportHeight - anchor.bottom - GAP * 4;
 
+  const cap = (room: number) => Math.max(120, Math.min(room, viewportHeight * 0.6));
   const placeBelow = (room: number): Placement => ({
     visible,
     left,
     width,
     top: anchor.bottom + GAP,
     bottom: null,
-    maxHeight: Math.max(120, room),
+    maxHeight: cap(room),
   });
 
   if (below >= COMFORT_HEIGHT) return placeBelow(below);
@@ -65,7 +66,7 @@ export function placePanel(anchor: Box, clip: Box, viewportHeight: number): Plac
       width,
       top: null,
       bottom: viewportHeight - anchor.top + GAP,
-      maxHeight: above,
+      maxHeight: cap(above),
     };
   }
   return placeBelow(Math.max(below, belowPage));
@@ -107,4 +108,61 @@ export function applyPlacement(el: HTMLElement, p: Placement): void {
   el.style.top = p.top === null ? '' : `${p.top}px`;
   el.style.bottom = p.bottom === null ? '' : `${p.bottom}px`;
   el.style.maxHeight = `${p.maxHeight}px`;
+}
+
+/** Limits when the agent drags or resizes the box. Width keeps lines between ~40 and 75 characters. */
+export const PANEL_LIMITS = { minWidth: MIN_W, maxWidth: 600, minHeight: 120, margin: 8 } as const;
+
+/** Box moved or resized by the agent: fixed in the window, no longer follows the audio. */
+export interface ManualRect {
+  left: number;
+  top: number;
+  width: number;
+  /** null = height follows the text. */
+  height: number | null;
+}
+
+export function clampSize(
+  width: number,
+  height: number | null,
+  viewportWidth: number,
+  viewportHeight: number,
+): { width: number; height: number | null } {
+  const m = PANEL_LIMITS.margin * 2;
+  const w = Math.min(
+    PANEL_LIMITS.maxWidth,
+    viewportWidth - m,
+    Math.max(PANEL_LIMITS.minWidth, width),
+  );
+  const h =
+    height === null ? null : Math.min(viewportHeight - m, Math.max(PANEL_LIMITS.minHeight, height));
+  return { width: Math.round(w), height: h === null ? null : Math.round(h) };
+}
+
+/** Keeps a moved box fully reachable inside the window. */
+export function clampRect(
+  r: ManualRect,
+  viewportWidth: number,
+  viewportHeight: number,
+): ManualRect {
+  const m = PANEL_LIMITS.margin;
+  const { width, height } = clampSize(r.width, r.height, viewportWidth, viewportHeight);
+  const minVisibleHeight = height ?? PANEL_LIMITS.minHeight;
+  return {
+    width,
+    height,
+    left: Math.round(Math.min(Math.max(m, r.left), viewportWidth - width - m)),
+    top: Math.round(Math.min(Math.max(m, r.top), viewportHeight - minVisibleHeight - m)),
+  };
+}
+
+export function applyManual(el: HTMLElement, r: ManualRect, viewportHeight: number): void {
+  el.style.display = '';
+  el.style.visibility = 'visible';
+  el.style.left = `${r.left}px`;
+  el.style.top = `${r.top}px`;
+  el.style.bottom = '';
+  el.style.width = `${r.width}px`;
+  el.style.height = r.height === null ? '' : `${r.height}px`;
+  el.style.maxHeight = `${viewportHeight - r.top - PANEL_LIMITS.margin}px`;
 }

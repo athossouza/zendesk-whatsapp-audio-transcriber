@@ -10,7 +10,16 @@ import {
   type TranscriptionState,
 } from '@/src/shared/transcription-state';
 import { buildNoteBody, NoteError, noteErrorMessage, type ZendeskApi } from '../zendesk-api';
-import { applyPlacement, placeMenu, placePanel, toBox } from './anchor';
+import {
+  applyManual,
+  applyPlacement,
+  clampRect,
+  clampSize,
+  placeMenu,
+  placePanel,
+  toBox,
+  type ManualRect,
+} from './anchor';
 import {
   IconCheck,
   IconClose,
@@ -20,6 +29,8 @@ import {
   IconNote,
   IconTranscript,
 } from './icons';
+
+const PANEL_SIZE_KEY = 'panelSize';
 
 export interface AudioContextInfo {
   audioKey: string;
@@ -71,6 +82,16 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
   const button = useRef<HTMLButtonElement>(null);
   const firstItem = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
+  /** Set once the agent drags or resizes the box: it then stays put in the window. */
+  const manual = useRef<ManualRect | null>(null);
+  /** Size the agent chose last time (remembered across audios and sessions). */
+  const savedSize = useRef<{ width: number; height: number | null } | null>(null);
+  const gesture = useRef<{
+    mode: 'move' | 'resize';
+    x: number;
+    y: number;
+    start: ManualRect;
+  } | null>(null);
   const menu = useRef<HTMLUListElement>(null);
 
   const busy = !['idle', 'done', 'error'].includes(state.kind);
@@ -107,11 +128,22 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
       const clipEl = ctx.clip();
       const clip = toBox((clipEl ?? document.documentElement).getBoundingClientRect());
       const vh = window.innerHeight;
-      if (panel.current)
-        applyPlacement(
-          panel.current,
-          placePanel(toBox(ctx.player.getBoundingClientRect()), clip, vh),
-        );
+      const vw = window.innerWidth;
+      if (panel.current) {
+        if (manual.current) {
+          manual.current = clampRect(manual.current, vw, vh);
+          applyManual(panel.current, manual.current, vh);
+        } else {
+          const placement = placePanel(toBox(ctx.player.getBoundingClientRect()), clip, vh);
+          const size =
+            savedSize.current &&
+            clampSize(savedSize.current.width, savedSize.current.height, vw, vh);
+          if (size) placement.width = size.width;
+          applyPlacement(panel.current, placement);
+          panel.current.style.height =
+            size?.height != null ? `${Math.min(size.height, placement.maxHeight)}px` : '';
+        }
+      }
       if (menu.current && button.current) {
         applyPlacement(
           menu.current,
@@ -129,8 +161,86 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
     return () => cancelAnimationFrame(frame);
   }, [menuOpen, panelOpen]);
 
+  // Remembered box size (per agent, in this browser).
+  useEffect(() => {
+    try {
+      void chrome.storage.local
+        .get(PANEL_SIZE_KEY)
+        .then((r) => {
+          const v = r[PANEL_SIZE_KEY] as { width?: unknown; height?: unknown } | undefined;
+          if (v && typeof v.width === 'number') {
+            savedSize.current = {
+              width: v.width,
+              height: typeof v.height === 'number' ? v.height : null,
+            };
+          }
+        })
+        .catch(() => undefined);
+    } catch {
+      // Extension context gone: keep defaults.
+    }
+  }, []);
+
+  const startGesture = (mode: 'move' | 'resize') => (e: PointerEvent) => {
+    if (e.button !== 0 || !panel.current) return;
+    // Clicks on the header's own controls are not drags.
+    if (mode === 'move' && (e.target as Element).closest('button, .info')) return;
+    e.preventDefault();
+    const r = panel.current.getBoundingClientRect();
+    const start: ManualRect = {
+      left: r.left,
+      top: r.top,
+      width: r.width,
+      height:
+        mode === 'resize'
+          ? r.height
+          : (manual.current?.height ?? savedSize.current?.height ?? null),
+    };
+    manual.current = start;
+    gesture.current = { mode, x: e.clientX, y: e.clientY, start };
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+  };
+
+  const moveGesture = (e: PointerEvent) => {
+    const g = gesture.current;
+    if (!g) return;
+    const dx = e.clientX - g.x;
+    const dy = e.clientY - g.y;
+    manual.current =
+      g.mode === 'move'
+        ? { ...g.start, left: g.start.left + dx, top: g.start.top + dy }
+        : { ...g.start, width: g.start.width + dx, height: (g.start.height ?? 0) + dy };
+  };
+
+  const endGesture = () => {
+    const g = gesture.current;
+    gesture.current = null;
+    if (g?.mode === 'resize' && manual.current) {
+      savedSize.current = { width: manual.current.width, height: manual.current.height };
+      try {
+        void chrome.storage.local
+          .set({ [PANEL_SIZE_KEY]: savedSize.current })
+          .catch(() => undefined);
+      } catch {
+        // Extension context gone: size is kept for this page only.
+      }
+    }
+  };
+
+  /** Double-click on the header: back next to the audio, default size. */
+  const resetPanel = () => {
+    manual.current = null;
+    savedSize.current = null;
+    try {
+      void chrome.storage.local.remove(PANEL_SIZE_KEY).catch(() => undefined);
+    } catch {
+      // ignore
+    }
+  };
+
   const closePanel = () => {
     handle.current?.cancel();
+    manual.current = null;
     setPanelOpen(false);
     button.current?.focus();
   };
@@ -350,7 +460,15 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
             aria-modal="false"
             onKeyDown={onPanelKey}
           >
-            <header class="head">
+            <header
+              class="head"
+              title="Arraste para mover · clique duplo para voltar ao lugar"
+              onPointerDown={startGesture('move')}
+              onPointerMove={moveGesture}
+              onPointerUp={endGesture}
+              onLostPointerCapture={endGesture}
+              onDblClick={resetPanel}
+            >
               <span class="title">
                 Transcrição
                 {duration && <span class="meta">{duration}</span>}
@@ -451,6 +569,15 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
                 </button>
               )}
             </footer>
+            <div
+              class="resizer"
+              aria-hidden="true"
+              title="Arraste para redimensionar"
+              onPointerDown={startGesture('resize')}
+              onPointerMove={moveGesture}
+              onPointerUp={endGesture}
+              onLostPointerCapture={endGesture}
+            />
           </div>,
           ctx.overlayRoot as unknown as Element,
         )}

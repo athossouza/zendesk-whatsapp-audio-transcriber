@@ -85,10 +85,37 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context, exten
   expect(comment.body).toMatch(/^Transcrição do áudio de Cliente Teste/);
   expect(comment.body).toMatch(/\[atveza-transcricao:[a-f0-9]{32}\]$/);
 
+  // Drag by the header: the box moves and stays where it was dropped.
+  const before = (await dialog.boundingBox())!;
+  const head = dialog.locator('header');
+  const hb = (await head.boundingBox())!;
+  await page.mouse.move(hb.x + 40, hb.y + hb.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(hb.x + 240, hb.y + hb.height / 2 + 120, { steps: 5 });
+  await page.mouse.up();
+  const moved = (await dialog.boundingBox())!;
+  expect(Math.round(moved.x - before.x)).toBe(200);
+  expect(Math.round(moved.y - before.y)).toBe(120);
+
+  // Resize from the corner grip; the size is remembered for the next box.
+  const grip = (await dialog.locator('.resizer').boundingBox())!;
+  await page.mouse.move(grip.x + 8, grip.y + 8);
+  await page.mouse.down();
+  await page.mouse.move(grip.x + 68, grip.y + 108, { steps: 5 });
+  await page.mouse.up();
+  const resized = (await dialog.boundingBox())!;
+  expect(Math.round(resized.width - moved.width)).toBe(60);
+  expect(Math.round(resized.height - moved.height)).toBe(100);
+  await page.screenshot({ path: 'test-results/ui-moved.png' });
+
   // Esc closes and returns focus to ⋯; reopening shows the cached transcript.
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
   await more.first().click();
-  await expect(page.getByRole('menuitem', { name: 'Ver transcrição' })).toBeVisible();
+  await page.getByRole('menuitem', { name: 'Ver transcrição' }).click();
+  // Reopened next to the audio (position not kept), with the remembered size.
+  const reopened = (await dialog.boundingBox())!;
+  expect(Math.round(reopened.width)).toBe(Math.round(resized.width));
+  expect(Math.abs(reopened.x - before.x)).toBeLessThan(2);
   expect(pageErrors.filter((e) => !/favicon|404/.test(e))).toEqual([]);
 });

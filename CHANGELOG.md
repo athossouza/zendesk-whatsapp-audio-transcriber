@@ -4,6 +4,12 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+### Interface
+
+- Caixa de transcrição pode ser arrastada pelo título e redimensionada pelo canto; o tamanho fica guardado e o clique duplo no título volta ao padrão.
+- Leitura: cerca de 62 caracteres por linha (máximo 75), entrelinha 1,5 e parágrafos de até 3 frases.
+- Visual no estilo do Zendesk (Garden): ações como links de texto, tema claro/escuro seguindo o Zendesk.
+
 ### Fase 2 · MVP (em andamento)
 
 - Botão ⋯ ao lado do download do player, menu e caixa de transcrição com texto em tempo real (Shadow DOM fechado).

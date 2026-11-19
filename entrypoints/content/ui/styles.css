@@ -192,6 +192,9 @@ button:focus-visible {
 }
 
 .head {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -261,17 +264,20 @@ button:focus-visible {
   background: var(--hover);
 }
 
+.head:active {
+  cursor: grabbing;
+}
+
 .body {
   flex: 1 1 auto;
   min-height: 0;
-  max-height: 50vh;
   overflow-y: auto;
   padding: 4px 16px 10px;
 }
 
-/* Reading: ~62 characters per line and 1.5 line height (Baymard, WCAG 1.4.8 / 1.4.12). */
+/* Reading: ~62 characters per line by default, never more than 75; line height 1.5 (Baymard, WCAG 1.4.8 / 1.4.12). */
 .text {
-  max-width: 62ch;
+  max-width: 75ch;
   line-height: 1.5;
   overflow-wrap: anywhere;
   user-select: text;
@@ -364,6 +370,25 @@ progress::-webkit-progress-value {
 
 .spacer {
   flex: 1 1 auto;
+}
+
+/* Resize grip in the bottom-right corner (two short diagonal strokes). */
+.resizer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  touch-action: none;
+  opacity: 0.55;
+  background:
+    linear-gradient(135deg, transparent 55%, var(--subtle) 55%, var(--subtle) 62%, transparent 62%),
+    linear-gradient(135deg, transparent 75%, var(--subtle) 75%, var(--subtle) 82%, transparent 82%);
+}
+
+.resizer:hover {
+  opacity: 1;
 }
 
 /* Text link, like "Exibir resumo do ticket" / "aceitar" in the Agent Workspace. */

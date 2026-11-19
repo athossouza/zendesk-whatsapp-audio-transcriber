@@ -1,4 +1,10 @@
-import { placeMenu, placePanel, type Box } from '@/entrypoints/content/ui/anchor';
+import {
+  clampRect,
+  clampSize,
+  placeMenu,
+  placePanel,
+  type Box,
+} from '@/entrypoints/content/ui/anchor';
 
 const box = (top: number, bottom: number, left = 100, width = 300): Box => ({
   top,
@@ -51,6 +57,28 @@ describe('placeMenu', () => {
     expect(placeMenu(box(860, 884, 500, 24), clip, 100, 900)).toMatchObject({
       top: null,
       bottom: 900 - 860 + 4,
+    });
+  });
+});
+
+describe('manual move and resize', () => {
+  it('keeps size within 300–600 px wide and 120 px to the window height', () => {
+    expect(clampSize(100, 50, 1400, 800)).toEqual({ width: 300, height: 120 });
+    expect(clampSize(900, 2000, 1400, 800)).toEqual({ width: 600, height: 784 });
+    expect(clampSize(450, null, 1400, 800)).toEqual({ width: 450, height: null });
+    // Narrow window: never wider than the window.
+    expect(clampSize(600, null, 500, 800).width).toBe(484);
+  });
+
+  it('keeps a dragged box reachable inside the window', () => {
+    const r = { left: -200, top: -50, width: 480, height: 300 };
+    expect(clampRect(r, 1400, 800)).toEqual({ left: 8, top: 8, width: 480, height: 300 });
+    const far = { left: 5000, top: 5000, width: 480, height: null };
+    expect(clampRect(far, 1400, 800)).toEqual({
+      left: 1400 - 480 - 8,
+      top: 800 - 120 - 8,
+      width: 480,
+      height: null,
     });
   });
 });
