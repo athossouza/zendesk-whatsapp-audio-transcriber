@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from './zod';
 import { DEFAULT_MODEL } from './models';
 
 /** User settings (spec section 9). Stored in chrome.storage.sync, overridable by managed policy. */

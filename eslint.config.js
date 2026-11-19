@@ -32,7 +32,23 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', ignoreRestSiblings: true },
       ],
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'zod',
+              message:
+                "Import z from 'src/shared/zod' (jitless: no runtime code generation in MV3).",
+            },
+          ],
+        },
+      ],
     },
+  },
+  {
+    files: ['src/shared/zod.ts'],
+    rules: { 'no-restricted-imports': 'off' },
   },
   {
     files: ['tests/**'],

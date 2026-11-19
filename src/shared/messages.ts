@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from './zod';
 import { ErrorCodeSchema } from './errors';
 import { DtypeSchema } from './models';
 

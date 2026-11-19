@@ -43,6 +43,14 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context, exten
   });
 
   const page = await context.newPage();
+  // Errors that chrome://extensions would list (e.g. CSP blocking eval/new Function).
+  const pageErrors: string[] = [];
+  page.on('console', (m) => {
+    if (m.type() === 'error' || /Refused to evaluate|unsafe-eval/i.test(m.text())) {
+      pageErrors.push(m.text());
+    }
+  });
+  page.on('pageerror', (e) => pageErrors.push(e.message));
   await page.goto(`${ORIGIN}/agent/tickets/454`);
 
   // One ⋯ per audio (2 in the fixture), no duplicates after re-scans.
@@ -82,4 +90,5 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context, exten
   await expect(dialog).toBeHidden();
   await more.first().click();
   await expect(page.getByRole('menuitem', { name: 'Ver transcrição' })).toBeVisible();
+  expect(pageErrors.filter((e) => !/favicon|404/.test(e))).toEqual([]);
 });

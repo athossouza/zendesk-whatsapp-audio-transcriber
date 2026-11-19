@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from './zod';
 
 /** Per-module ONNX precision, as accepted by Transformers.js `dtype`. */
 export const DtypeSchema = z.union([

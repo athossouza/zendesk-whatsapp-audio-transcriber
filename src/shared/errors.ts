@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from './zod';
 
 /** Error codes (spec section 12). */
 export const ErrorCodeSchema = z.enum([

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from './zod';
 import defaults from './selectors.default.json';
 
 const SelectorList = z.array(z.string().min(1).max(300)).max(30);

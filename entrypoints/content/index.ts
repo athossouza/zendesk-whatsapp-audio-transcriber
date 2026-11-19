@@ -5,6 +5,7 @@ import { buildEntry, probeFetch } from '@/src/shared/discovery';
 import { appendDiscoveryEntries } from '@/src/shared/discovery-store';
 import { DEFAULT_SELECTORS } from '@/src/shared/selectors';
 import { loadSettings } from '@/src/shared/settings';
+import { isExtensionContextValid } from '@/src/shared/transcribe-client';
 import { getTranscripts } from '@/src/shared/transcript-cache';
 import { parseSubdomain, parseTicketId } from '@/src/shared/zendesk-url';
 import { detectAudios, findConversationRoot, type AudioCandidate } from './detector';
@@ -49,7 +50,16 @@ async function start(): Promise<void> {
 
   const log = (...args: unknown[]) => settings.debug && console.debug(LOG_PREFIX, ...args);
 
+  let stopWatching: (() => void) | null = null;
+
   const scan = (): void => {
+    // Extension reloaded/updated while this tab stayed open: this script is orphaned.
+    // Stop quietly; the existing ⋯ buttons answer with "Recarregue a página".
+    if (!isExtensionContextValid()) {
+      stopWatching?.();
+      stopWatching = null;
+      return;
+    }
     try {
       runScan();
     } catch (err) {
@@ -83,7 +93,9 @@ async function start(): Promise<void> {
       if (injected.has(c.player) || pending.has(c.player)) continue;
       pending.add(c.player);
       const index = candidates.filter((o) => o.bubble && o.bubble === c.bubble).indexOf(c);
-      void setup(c, ticketId, Math.max(0, index)).finally(() => pending.delete(c.player));
+      void setup(c, ticketId, Math.max(0, index))
+        .catch((err: unknown) => log('setup failed', err))
+        .finally(() => pending.delete(c.player));
     }
     log(`ticket ${ticketId}: ${candidates.length} audio(s)`);
   }
@@ -121,7 +133,9 @@ async function start(): Promise<void> {
 
     // Notes saved by other agents/devices: check once per ticket, then update the button.
     if (!known) {
-      void findKnown(ticketId, audioKey, true).then((k) => k && item.update(k));
+      void findKnown(ticketId, audioKey, true)
+        .then((k) => k && item.update(k))
+        .catch((err: unknown) => log('notes lookup failed', err));
     }
   }
 
@@ -180,10 +194,12 @@ async function start(): Promise<void> {
         console.info(LOG_PREFIX, 'discovery', entry);
         return entry;
       }),
-    ).then(appendDiscoveryEntries);
+    )
+      .then(appendDiscoveryEntries)
+      .catch((err: unknown) => log('discovery failed', err));
   }
 
-  watchPage(window, {
+  stopWatching = watchPage(window, {
     onScan: scan,
     onNavigate: (path) => {
       log('navigated', path);
