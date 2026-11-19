@@ -19,7 +19,10 @@ export default tseslint.config(
         { property: 'innerHTML', message: 'Use textContent (spec section 10).' },
         { property: 'outerHTML', object: 'document', message: 'Avoid writing HTML.' },
       ],
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', ignoreRestSiblings: true },
+      ],
     },
   },
   {

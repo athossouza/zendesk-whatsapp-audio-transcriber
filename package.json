@@ -18,7 +18,9 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run build"
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run build",
+    "test:e2e": "npm run build && playwright test",
+    "bench": "npm run build && BENCH=1 HEADED=1 playwright test bench"
   },
   "dependencies": {
     "@huggingface/transformers": "4.3.2",
@@ -27,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",
+    "@playwright/test": "1.65.1",
     "@preact/preset-vite": "2.10.6",
     "@types/chrome": "0.3.7",
     "@types/node": "22.20.5",

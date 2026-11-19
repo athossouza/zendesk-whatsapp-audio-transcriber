@@ -7,3 +7,7 @@ web-ext.config.ts
 .DS_Store
 .env*
 !.env.example
+.playwright-profile/
+bench-results/
+test-results/
+playwright-report/
