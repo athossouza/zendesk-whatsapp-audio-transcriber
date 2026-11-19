@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'preact/hooks';
 import { clearDiscoveryEntries, readDiscoveryReport } from '@/src/shared/discovery-store';
+import { MODEL_PRESETS } from '@/src/shared/models';
+import { clearModelCache } from '@/src/shared/model-cache';
 import { loadSettings, saveSettings, type Settings } from '@/src/shared/settings';
+import { clearTranscripts } from '@/src/shared/transcript-cache';
+import { TranscriptionTest } from './TranscriptionTest';
 
 type Status = { kind: 'idle' } | { kind: 'ok' | 'error'; text: string };
+
+const LANGUAGES: { value: Settings['language']; label: string }[] = [
+  { value: 'portuguese', label: 'Português' },
+  { value: 'english', label: 'Inglês' },
+  { value: 'spanish', label: 'Espanhol' },
+  { value: 'auto', label: 'Detectar automaticamente' },
+];
 
 export function App() {
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -21,25 +32,29 @@ export function App() {
 
   if (!settings) return <p>Carregando…</p>;
 
-  const toggle = async (key: 'discoveryMode' | 'debug' | 'enabled', value: boolean) => {
+  const update = async <K extends keyof Settings>(key: K, value: Settings[K]) => {
     await saveSettings({ [key]: value });
     setSettings({ ...settings, [key]: value });
   };
 
-  const copyReport = async () => {
+  const run = async (action: () => Promise<void>, ok: string, error: string) => {
     try {
-      const report = await readDiscoveryReport();
-      await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
-      setStatus({ kind: 'ok', text: `Relatório copiado (${report.entries.length} áudios).` });
+      await action();
+      setStatus({ kind: 'ok', text: ok });
     } catch {
-      setStatus({ kind: 'error', text: 'Não consegui copiar o relatório.' });
+      setStatus({ kind: 'error', text: error });
     }
   };
 
-  const clearReport = async () => {
-    await clearDiscoveryEntries();
-    setStatus({ kind: 'ok', text: 'Relatório apagado.' });
-  };
+  const copyReport = () =>
+    run(
+      async () => {
+        const report = await readDiscoveryReport();
+        await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
+      },
+      'Relatório copiado.',
+      'Não consegui copiar o relatório.',
+    );
 
   return (
     <main>
@@ -54,13 +69,71 @@ export function App() {
         <Toggle
           label="Mostrar o ⋯ nos áudios"
           checked={settings.enabled}
-          onChange={(v) => toggle('enabled', v)}
+          onChange={(v) => update('enabled', v)}
         />
+        <label class="field">
+          Modelo
+          <select
+            value={settings.model}
+            onChange={(e) => update('model', (e.currentTarget as HTMLSelectElement).value)}
+          >
+            {MODEL_PRESETS.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label} · ~{m.approxMb} MB
+              </option>
+            ))}
+          </select>
+        </label>
+        <label class="field">
+          Idioma dos áudios
+          <select
+            value={settings.language}
+            onChange={(e) =>
+              update(
+                'language',
+                (e.currentTarget as HTMLSelectElement).value as Settings['language'],
+              )
+            }
+          >
+            {LANGUAGES.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <Toggle
           label="Logs detalhados no console"
           checked={settings.debug}
-          onChange={(v) => toggle('debug', v)}
+          onChange={(v) => update('debug', v)}
         />
+      </section>
+
+      <TranscriptionTest model={settings.model} />
+
+      <section>
+        <h2>Dados no navegador</h2>
+        <div class="actions">
+          <button
+            type="button"
+            class="secondary"
+            onClick={() => run(clearTranscripts, 'Transcrições apagadas.', 'Não consegui apagar.')}
+          >
+            Limpar transcrições
+          </button>
+          <button
+            type="button"
+            class="secondary"
+            onClick={() =>
+              run(clearModelCache, 'Modelos removidos.', 'Não consegui remover os modelos.')
+            }
+          >
+            Remover modelos baixados
+          </button>
+          <a class="button secondary" href="/benchmark.html" target="_blank">
+            Bancada de testes (Fase 1)
+          </a>
+        </div>
       </section>
 
       <section>
@@ -72,7 +145,7 @@ export function App() {
         <Toggle
           label="Ligar modo descoberta"
           checked={settings.discoveryMode}
-          onChange={(v) => toggle('discoveryMode', v)}
+          onChange={(v) => update('discoveryMode', v)}
         />
         <p>
           Áudios registrados: <strong>{entryCount}</strong>
@@ -81,7 +154,11 @@ export function App() {
           <button type="button" onClick={copyReport}>
             Copiar relatório de descoberta
           </button>
-          <button type="button" class="secondary" onClick={clearReport}>
+          <button
+            type="button"
+            class="secondary"
+            onClick={() => run(clearDiscoveryEntries, 'Relatório apagado.', 'Erro.')}
+          >
             Apagar relatório
           </button>
         </div>

@@ -101,3 +101,95 @@ input:focus-visible {
 .error {
   color: var(--error);
 }
+
+main.wide {
+  max-width: 1100px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0;
+}
+
+select,
+input[type='file'] {
+  font: inherit;
+  max-width: 100%;
+}
+
+select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+fieldset {
+  border: 0;
+  padding: 0;
+  margin: 8px 0 12px;
+}
+
+legend {
+  font-weight: 600;
+}
+
+a.button {
+  display: inline-block;
+  font: inherit;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+progress {
+  width: 100%;
+}
+
+blockquote {
+  margin: 12px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--accent);
+  white-space: pre-wrap;
+}
+
+dl.metrics {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+}
+
+dl.metrics dt {
+  color: var(--muted);
+}
+
+dl.metrics dd {
+  margin: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  display: block;
+  overflow-x: auto;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}

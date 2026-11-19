@@ -1,0 +1,29 @@
+{
+  "generatedWith": "macOS say + ffmpeg (OGG/Opus 16 kHz mono, 24 kbps, like WhatsApp)",
+  "samples": [
+    {
+      "file": "01-licenca.ogg",
+      "reference": "Bom dia, tudo bem? Estou com um problema na licença do EDGECAM. Desde ontem ele não abre e aparece uma mensagem dizendo que o dongle não foi encontrado."
+    },
+    {
+      "file": "02-solidworks.ogg",
+      "reference": "Oi, aqui é da fábrica. A gente atualizou o SOLIDWORKS e agora a montagem não carrega as peças. Você consegue me ligar hoje à tarde?"
+    },
+    {
+      "file": "03-posprocessador.ogg",
+      "reference": "Preciso de ajuda com o pós-processador da máquina de cinco eixos. O código gerado está com o avanço errado no último programa."
+    },
+    {
+      "file": "04-curto.ogg",
+      "reference": "Pode me mandar o boleto de novo, por favor?"
+    },
+    {
+      "file": "05-longo.ogg",
+      "reference": "Olá, boa tarde. Eu queria explicar melhor o que está acontecendo aqui na empresa. Na segunda-feira nós instalamos a nova versão do DriveWorks em três computadores. Em dois deles funcionou normalmente, mas no terceiro, que é o computador do setor de projetos, o programa abre e fecha sozinho logo depois da tela inicial. Já tentamos reinstalar duas vezes e também desativamos o antivírus, mas o problema continua. O técnico de informática daqui acha que pode ser alguma coisa com a placa de vídeo, porque esse computador é mais antigo. Vocês conseguem verificar se essa versão exige alguma placa específica? Se precisar, posso liberar o acesso remoto amanhã de manhã, a partir das oito horas. Obrigado e aguardo o retorno."
+    },
+    {
+      "file": "06-silencio.ogg",
+      "reference": ""
+    }
+  ]
+}
