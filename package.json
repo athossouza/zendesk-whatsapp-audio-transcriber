@@ -1,5 +1,5 @@
 {
-  "name": "atveza-audio-transcriber",
+  "name": "zendesk-whatsapp-audio-transcriber",
   "description": "Chrome extension that transcribes WhatsApp audio messages inside Zendesk Agent Workspace, locally with Whisper.",
   "private": true,
   "version": "0.1.0",
@@ -21,6 +21,7 @@
     "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
+    "@huggingface/transformers": "4.3.2",
     "preact": "10.29.8",
     "zod": "4.6.7"
   },
