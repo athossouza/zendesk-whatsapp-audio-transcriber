@@ -10,13 +10,13 @@ Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudi
 
 ## Status
 
-| Fase               | Status                                                                               |
-| ------------------ | ------------------------------------------------------------------------------------ |
-| 0 · Descoberta     | ✅                                                                                   |
-| 1 · Teste do motor | ✅ Modelo padrão: whisper-large-v3-turbo (falta medir numa máquina típica de agente) |
-| 2 · MVP completo   | 🚧 ⋯, caixa, nota interna e cache prontos; falta testar no Zendesk real              |
-| 3 · Piloto na SKA  | ⏳                                                                                   |
-| 4 · Liberação      | ⏳                                                                                   |
+| Fase               | Status                                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| 0 · Descoberta     | ✅                                                                                        |
+| 1 · Teste do motor | ✅ Modelo padrão: whisper-large-v3-turbo (falta medir numa máquina típica de agente)      |
+| 2 · MVP completo   | ✅ Testado no Zendesk real (d3v-atveza, ticket 454): ⋯, transcrição, nota interna privada |
+| 3 · Piloto na SKA  | ⏳                                                                                        |
+| 4 · Liberação      | ⏳                                                                                        |
 
 ## Requisitos
 

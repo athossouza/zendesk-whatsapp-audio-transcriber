@@ -66,6 +66,8 @@ async function load(msg: Extract<WorkerIn, { type: 'load' }>): Promise<void> {
   env.remoteHost = msg.mirror || 'https://huggingface.co/';
 
   const started = performance.now();
+  // Model already in the browser cache: no "downloading" progress, just loading.
+  const fromCache = await isCached(msg.model);
   const files = new Map<string, { loaded: number; total: number }>();
   const onProgress = (p: ProgressInfo): void => {
     if (p.status !== 'progress' && p.status !== 'done') return;
@@ -81,7 +83,7 @@ async function load(msg: Extract<WorkerIn, { type: 'load' }>): Promise<void> {
       sumLoaded += f.loaded;
       sumTotal += f.total;
     }
-    post({ type: 'progress', loaded: sumLoaded, total: sumTotal });
+    if (!fromCache) post({ type: 'progress', loaded: sumLoaded, total: sumTotal });
   };
 
   asr = (await pipeline('automatic-speech-recognition', msg.model, {
@@ -103,6 +105,17 @@ async function load(msg: Extract<WorkerIn, { type: 'load' }>): Promise<void> {
   });
 }
 let lastModelBytes = 0;
+
+/** True when the model's files are already in Transformers.js' Cache Storage. */
+async function isCached(model: string): Promise<boolean> {
+  try {
+    const cache = await caches.open('transformers-cache');
+    const keys = await cache.keys();
+    return keys.some((r) => r.url.includes(`/${model}/`) && r.url.endsWith('.onnx'));
+  } catch {
+    return false;
+  }
+}
 
 async function transcribe(msg: Extract<WorkerIn, { type: 'transcribe' }>): Promise<void> {
   if (!asr) throw new Error('Model not loaded');

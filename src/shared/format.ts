@@ -7,7 +7,8 @@ export function formatSeconds(ms: number | null | undefined): string {
 }
 
 export function formatDuration(seconds: number): string {
-  const s = Math.round(seconds);
+  // Truncate like the Zendesk player (1:04.6 shows as 1:04).
+  const s = Math.floor(seconds);
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 

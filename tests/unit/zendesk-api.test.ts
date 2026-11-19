@@ -39,7 +39,7 @@ describe('buildNoteBody', () => {
     );
     expect(body).toBe(
       [
-        'Transcrição do áudio de Cliente Teste (19/11/2026, 14:11, 0:07)',
+        'Transcrição do áudio de Cliente Teste (19/11/2026, 14:11, 0:06)',
         '',
         'Bom dia.',
         '',

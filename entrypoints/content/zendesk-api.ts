@@ -2,6 +2,7 @@
  * Zendesk REST API, called from the content script with the agent's session
  * (spec section 8). No API token, OAuth or password.
  */
+import { formatDuration } from '@/src/shared/format';
 import { shortModelName } from '@/src/shared/models';
 
 export const MARKER_RE = /\[atveza-transcricao:([a-f0-9]{32})\]/;
@@ -48,10 +49,7 @@ export function buildNoteBody(n: NoteInput, locale = 'pt-BR', timeZone?: string)
   const when = n.time
     ? new Date(n.time).toLocaleString(locale, { dateStyle: 'short', timeStyle: 'short', timeZone })
     : 'data desconhecida';
-  const dur =
-    n.durationSeconds === null
-      ? '?'
-      : `${Math.floor(n.durationSeconds / 60)}:${String(Math.round(n.durationSeconds % 60)).padStart(2, '0')}`;
+  const dur = n.durationSeconds === null ? '?' : formatDuration(n.durationSeconds);
   return [
     `Transcrição do áudio de ${n.author ?? 'cliente'} (${when}, ${dur})`,
     '',

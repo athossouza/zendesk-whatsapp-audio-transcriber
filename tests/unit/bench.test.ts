@@ -59,8 +59,9 @@ describe('summarize', () => {
 
 describe('format', () => {
   it('formats durations and percents', () => {
-    expect(formatDuration(6.9)).toBe('0:07');
+    expect(formatDuration(6.9)).toBe('0:06');
     expect(formatDuration(75)).toBe('1:15');
+    expect(formatDuration(59.6)).toBe('0:59');
     expect(formatSeconds(1234)).toBe('1.2 s');
     expect(formatSeconds(null)).toBe('—');
     expect(formatPercent(0.123)).toBe('12.3%');
