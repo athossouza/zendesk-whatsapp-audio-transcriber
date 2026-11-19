@@ -30,6 +30,7 @@
     "@preact/preset-vite": "2.10.6",
     "@types/chrome": "0.3.7",
     "@types/node": "22.20.5",
+    "@webgpu/types": "0.1.74",
     "eslint": "9.39.5",
     "eslint-config-prettier": "10.1.8",
     "globals": "17.14.0",

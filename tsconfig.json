@@ -7,7 +7,7 @@
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
-    "types": ["chrome", "node", "vitest/globals"]
+    "types": ["chrome", "node", "vitest/globals", "@webgpu/types"]
   },
   "include": ["**/*.ts", "**/*.tsx", ".wxt/wxt.d.ts"],
   "exclude": ["node_modules", ".output", ".wxt/**/!(wxt.d.ts)"]
