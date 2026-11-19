@@ -15,9 +15,9 @@ import {
   IconCheck,
   IconClose,
   IconCopy,
+  IconInfo,
   IconMore,
   IconNote,
-  IconRefresh,
   IconTranscript,
 } from './icons';
 
@@ -259,7 +259,11 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
   // While (re)transcribing, show only the new text, never the previous one.
   const showText = state.kind === 'transcribing' ? state.text : busy ? null : text;
 
-  const meta = headerDetails(known?.audioSeconds ?? ctx.durationSeconds, known?.model ?? null);
+  const seconds = known?.audioSeconds ?? ctx.durationSeconds;
+  const duration = seconds === null ? null : formatDuration(seconds);
+  const disclaimer = `Gerado por IA no seu computador${
+    known?.model ? ` (${shortModelName(known.model)})` : ''
+  }. Confira antes de usar.`;
   const canSave = !busy && !!text && note.kind !== 'saved' && note.kind !== 'already';
 
   return (
@@ -348,43 +352,27 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
           >
             <header class="head">
               <span class="title">
-                <IconTranscript />
                 Transcrição
-                {meta && <span class="meta">{meta}</span>}
-              </span>
-              <span class="tools">
-                {!busy && text && (
-                  <button
-                    type="button"
-                    class="icon-btn"
-                    aria-label={copied ? 'Copiado' : 'Copiar transcrição'}
-                    title={copied ? 'Copiado' : 'Copiar'}
-                    onClick={() => void copy()}
-                  >
-                    {copied ? <IconCheck /> : <IconCopy />}
-                  </button>
-                )}
-                {!busy && (text || state.kind === 'error') && (
-                  <button
-                    type="button"
-                    class="icon-btn"
-                    aria-label="Transcrever de novo"
-                    title="Transcrever de novo"
-                    onClick={() => void transcribe()}
-                  >
-                    <IconRefresh />
-                  </button>
-                )}
-                <button
-                  type="button"
-                  class="icon-btn"
-                  aria-label={busy ? 'Cancelar' : 'Fechar'}
-                  title={busy ? 'Cancelar' : 'Fechar'}
-                  onClick={closePanel}
+                {duration && <span class="meta">{duration}</span>}
+                <span
+                  class="info"
+                  tabIndex={0}
+                  role="img"
+                  aria-label={disclaimer}
+                  title={disclaimer}
                 >
-                  <IconClose />
-                </button>
+                  <IconInfo />
+                </span>
               </span>
+              <button
+                type="button"
+                class="close"
+                aria-label={busy ? 'Cancelar' : 'Fechar'}
+                title={busy ? 'Cancelar' : 'Fechar'}
+                onClick={closePanel}
+              >
+                <IconClose />
+              </button>
             </header>
 
             <div class="body" aria-live="polite">
@@ -415,9 +403,22 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
             </div>
 
             <footer class="foot">
-              <span class="disclaimer">
-                Gerado por IA no seu computador. Confira antes de usar.
-              </span>
+              {busy && (
+                <button type="button" class="link" onClick={closePanel}>
+                  Cancelar
+                </button>
+              )}
+              {!busy && text && (
+                <button type="button" class="link" onClick={() => void copy()}>
+                  {copied ? 'Copiado' : 'Copiar'}
+                </button>
+              )}
+              {!busy && (text || state.kind === 'error') && (
+                <button type="button" class="link" onClick={() => void transcribe()}>
+                  {state.kind === 'error' ? 'Tentar de novo' : 'Transcrever de novo'}
+                </button>
+              )}
+              <span class="spacer" />
               {note.kind === 'saving' && (
                 <span class="note-state">
                   <span class="spinner" aria-hidden="true" />
@@ -438,11 +439,10 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
               {canSave && note.kind !== 'saving' && (
                 <button
                   type="button"
-                  class="link-btn"
+                  class="link strong"
                   disabled={note.kind === 'error' && !note.retry}
                   onClick={() => void saveNote()}
                 >
-                  <IconNote />
                   Salvar como nota interna
                 </button>
               )}
@@ -452,10 +452,4 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
         )}
     </div>
   );
-}
-
-function headerDetails(seconds: number | null, model: string | null): string {
-  return [seconds === null ? null : formatDuration(seconds), model && shortModelName(model)]
-    .filter(Boolean)
-    .join(' · ');
 }

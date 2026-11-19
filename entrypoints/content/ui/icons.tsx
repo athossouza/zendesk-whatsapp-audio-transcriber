@@ -75,3 +75,12 @@ export function IconCheck() {
     </svg>
   );
 }
+
+export function IconInfo() {
+  return (
+    <svg {...base} width={14} height={14}>
+      <circle cx="8" cy="8" r="6" />
+      <path d="M8 7.5v3.5M8 5h.01" />
+    </svg>
+  );
+}

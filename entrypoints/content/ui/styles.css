@@ -172,7 +172,7 @@ button:focus-visible {
   color: var(--disabled);
 }
 
-/* Transcription box. */
+/* Transcription box: a light card; actions are text links, like Zendesk's in-context actions. */
 .panel {
   position: fixed;
   z-index: 2147482999;
@@ -184,7 +184,11 @@ button:focus-visible {
   backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 12px rgba(4, 68, 77, 0.1);
+}
+
+:host([data-theme='dark']) .panel {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .head {
@@ -192,22 +196,18 @@ button:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 4px 4px 0 16px;
-  min-height: 40px;
+  padding: 10px 8px 2px 16px;
 }
 
 .title {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--fg);
-  min-width: 0;
-}
-
-.title svg {
+  line-height: 16px;
   color: var(--muted);
+  min-width: 0;
 }
 
 .meta {
@@ -218,12 +218,47 @@ button:focus-visible {
 
 .meta::before {
   content: '·';
-  margin-right: 8px;
+  margin-right: 6px;
 }
 
-.tools {
+.info {
   display: inline-flex;
-  gap: 0;
+  color: var(--subtle);
+  cursor: help;
+  border-radius: 50%;
+}
+
+.info:hover {
+  color: var(--muted);
+}
+
+.info:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+.close {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--subtle);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.close svg {
+  width: 12px;
+  height: 12px;
+}
+
+.close:hover {
+  color: var(--fg);
+  background: var(--hover);
 }
 
 .body {
@@ -231,7 +266,7 @@ button:focus-visible {
   min-height: 0;
   max-height: 50vh;
   overflow-y: auto;
-  padding: 4px 16px 12px;
+  padding: 4px 16px 10px;
 }
 
 .text {
@@ -300,44 +335,39 @@ progress::-webkit-progress-value {
 .foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 6px 8px 6px 16px;
-  border-top: 1px solid var(--border);
-  min-height: 44px;
-}
-
-.disclaimer {
+  gap: 16px;
+  padding: 0 16px 12px;
   font-size: 12px;
   line-height: 16px;
-  color: var(--subtle);
 }
 
-/* Main action: blue text button, like Zendesk's "Enviar". */
-.link-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex: none;
-  height: 32px;
-  padding: 0 11px;
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Text link, like "Exibir resumo do ticket" / "aceitar" in the Agent Workspace. */
+.link {
+  padding: 0;
   border: 0;
-  border-radius: 4px;
-  background: transparent;
+  background: none;
   color: var(--accent);
   font-size: 12px;
-  line-height: 30px;
+  line-height: 16px;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.1s ease-in-out;
+  border-radius: 2px;
 }
 
-.link-btn:hover:not(:disabled) {
-  background: var(--accent-soft);
+.link:hover:not(:disabled) {
   color: var(--accent-hover);
+  text-decoration: underline;
 }
 
-.link-btn:disabled {
+.link.strong {
+  font-weight: 600;
+}
+
+.link:disabled {
   color: var(--disabled);
   cursor: default;
 }
@@ -345,12 +375,14 @@ progress::-webkit-progress-value {
 .note-state {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  flex: none;
-  font-size: 12px;
+  gap: 4px;
   color: var(--muted);
-  padding-right: 8px;
   white-space: nowrap;
+}
+
+.note-state svg {
+  width: 14px;
+  height: 14px;
 }
 
 .note-state.ok {
