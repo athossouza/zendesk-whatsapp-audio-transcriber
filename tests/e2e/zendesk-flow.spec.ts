@@ -22,7 +22,7 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context, exten
     if (url.pathname === '/agent/tickets/454') {
       return route.fulfill({
         contentType: 'text/html',
-        body: `<!doctype html><html><head><meta name="csrf-token" content="meta-token"></head><body>${fixture}</body></html>`,
+        body: `<!doctype html><html><head><meta name="csrf-token" content="meta-token"><style>/* Like the real Agent Workspace: fixed-height rows that clip their content. */ [data-test-id="omni-log-container"]{height:600px;overflow:hidden auto} article{display:block;height:180px;overflow:hidden}</style></head><body>${fixture}</body></html>`,
       });
     }
     if (url.pathname === '/fake/audio.ogg') {

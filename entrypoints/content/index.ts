@@ -60,7 +60,7 @@ async function start(): Promise<void> {
   function runScan(): void {
     // Drop UI of audios that left the page (or whose hosts Zendesk re-rendered away).
     for (const [player, item] of injected) {
-      if (!player.isConnected || !item.buttonHost.isConnected || !item.panelHost.isConnected) {
+      if (!player.isConnected || !item.buttonHost.isConnected || !item.overlayHost.isConnected) {
         item.remove();
         injected.delete(player);
       }
@@ -112,6 +112,7 @@ async function start(): Promise<void> {
         getAudio: () => readAudio(c),
         api,
         autoSaveNote: settings.autoSaveNote,
+        clip: () => findConversationRoot(document, selectors),
       },
       known,
     );

@@ -1,0 +1,48 @@
+import { placeMenu, placePanel, type Box } from '@/entrypoints/content/ui/anchor';
+
+const box = (top: number, bottom: number, left = 100, width = 300): Box => ({
+  top,
+  bottom,
+  left,
+  right: left + width,
+  width,
+});
+const clip = box(100, 700, 0, 800);
+
+describe('placePanel', () => {
+  it('goes below the player when there is room', () => {
+    const p = placePanel(box(200, 260), clip, 900);
+    expect(p).toMatchObject({ visible: true, top: 264, bottom: null, left: 100, width: 300 });
+    expect(p.maxHeight).toBe(700 - 260 - 8);
+  });
+
+  it('goes above the newest audio sitting right above the editor', () => {
+    const p = placePanel(box(600, 660), clip, 900);
+    expect(p).toMatchObject({ top: null, bottom: 900 - 600 + 4 });
+    expect(p.maxHeight).toBe(600 - 100 - 8);
+  });
+
+  it('hides when the player scrolls out of the conversation', () => {
+    expect(placePanel(box(20, 80), clip, 900).visible).toBe(false);
+    expect(placePanel(box(720, 780), clip, 900).visible).toBe(false);
+  });
+
+  it('keeps width between 280 and 560 px and inside the conversation', () => {
+    expect(placePanel(box(200, 260, 100, 100), clip, 900).width).toBe(280);
+    expect(placePanel(box(200, 260, 0, 900), clip, 900).width).toBe(560);
+    expect(placePanel(box(200, 260, 700, 300), clip, 900).left).toBe(800 - 300);
+  });
+});
+
+describe('placeMenu', () => {
+  it('right-aligns under the button and flips up near the bottom', () => {
+    expect(placeMenu(box(200, 224, 500, 24), clip, 100, 900)).toMatchObject({
+      top: 228,
+      left: 524 - 220,
+    });
+    expect(placeMenu(box(860, 884, 500, 24), clip, 100, 900)).toMatchObject({
+      top: null,
+      bottom: 900 - 860 + 4,
+    });
+  });
+});

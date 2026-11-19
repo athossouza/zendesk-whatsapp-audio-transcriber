@@ -10,6 +10,7 @@ import {
   type TranscriptionState,
 } from '@/src/shared/transcription-state';
 import { buildNoteBody, NoteError, noteErrorMessage, type ZendeskApi } from '../zendesk-api';
+import { applyPlacement, placeMenu, placePanel, toBox } from './anchor';
 
 export interface AudioContextInfo {
   audioKey: string;
@@ -20,8 +21,15 @@ export interface AudioContextInfo {
   durationSeconds: number | null;
   getAudio: () => Promise<{ base64: string; mime?: string }>;
   api: ZendeskApi;
-  /** Where the transcription box is rendered (below the player). */
-  panelRoot: ShadowRoot;
+  /** The player: the box is placed next to it. */
+  player: Element;
+  /** Visible area of the conversation (floating UI hides outside it). */
+  clip: () => Element | null;
+  /** Host of the ⋯ button (inline, next to the download button). */
+  buttonHost: HTMLElement;
+  /** Floating layer (position: fixed, in <body>) for the menu and the box. */
+  overlayHost: HTMLElement;
+  overlayRoot: ShadowRoot;
   autoSaveNote: boolean;
 }
 
@@ -51,6 +59,7 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
   const button = useRef<HTMLButtonElement>(null);
   const firstItem = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLUListElement>(null);
 
   const busy = !['idle', 'done', 'error'].includes(state.kind);
   const text = known?.text ?? null;
@@ -61,14 +70,52 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
   }, [menuOpen]);
   useEffect(() => {
     if (!menuOpen) return;
+    // With closed shadow roots, composedPath() seen from the document stops at the
+    // hosts, so compare against the hosts, not inner elements.
     const close = (e: Event) => {
-      if (!e.composedPath().some((n) => n === button.current?.parentElement)) setMenuOpen(false);
+      const path = e.composedPath();
+      if (!path.includes(ctx.buttonHost) && !path.includes(ctx.overlayHost)) setMenuOpen(false);
     };
     document.addEventListener('pointerdown', close, true);
     return () => document.removeEventListener('pointerdown', close, true);
   }, [menuOpen]);
   // Cancel if the audio leaves the page (component unmounted).
   useEffect(() => () => handle.current?.cancel(), []);
+
+  // Keep the floating menu/box attached to the player while the conversation scrolls.
+  useEffect(() => {
+    if (!menuOpen && !panelOpen) return;
+    let frame = 0;
+    const tick = () => {
+      if (!ctx.player.isConnected) {
+        setMenuOpen(false);
+        setPanelOpen(false);
+        return;
+      }
+      const clipEl = ctx.clip();
+      const clip = toBox((clipEl ?? document.documentElement).getBoundingClientRect());
+      const vh = window.innerHeight;
+      if (panel.current)
+        applyPlacement(
+          panel.current,
+          placePanel(toBox(ctx.player.getBoundingClientRect()), clip, vh),
+        );
+      if (menu.current && button.current) {
+        applyPlacement(
+          menu.current,
+          placeMenu(
+            toBox(button.current.getBoundingClientRect()),
+            clip,
+            menu.current.offsetHeight,
+            vh,
+          ),
+        );
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(frame);
+  }, [menuOpen, panelOpen]);
 
   const closePanel = () => {
     handle.current?.cancel();
@@ -214,55 +261,57 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
         {text && <span class="dot" aria-hidden="true" />}
       </button>
 
-      {menuOpen && (
-        <ul class="menu" role="menu" onKeyDown={onMenuKey}>
-          <li role="none">
-            <button
-              ref={firstItem}
-              type="button"
-              role="menuitem"
-              class="item"
-              onClick={() => {
-                if (text) {
+      {menuOpen &&
+        createPortal(
+          <ul ref={menu} class="menu" role="menu" onKeyDown={onMenuKey}>
+            <li role="none">
+              <button
+                ref={firstItem}
+                type="button"
+                role="menuitem"
+                class="item"
+                onClick={() => {
+                  if (text) {
+                    setMenuOpen(false);
+                    setPanelOpen(true);
+                  } else void transcribe();
+                }}
+              >
+                {text ? 'Ver transcrição' : 'Transcrever'}
+              </button>
+            </li>
+            <li role="none">
+              <button
+                type="button"
+                role="menuitem"
+                class="item"
+                disabled={!text}
+                onClick={() => {
+                  void copy();
+                  setMenuOpen(false);
+                }}
+              >
+                Copiar transcrição
+              </button>
+            </li>
+            <li role="none">
+              <button
+                type="button"
+                role="menuitem"
+                class="item"
+                disabled={!text || note.kind === 'saved'}
+                onClick={() => {
                   setMenuOpen(false);
                   setPanelOpen(true);
-                } else void transcribe();
-              }}
-            >
-              {text ? 'Ver transcrição' : 'Transcrever'}
-            </button>
-          </li>
-          <li role="none">
-            <button
-              type="button"
-              role="menuitem"
-              class="item"
-              disabled={!text}
-              onClick={() => {
-                void copy();
-                setMenuOpen(false);
-              }}
-            >
-              Copiar transcrição
-            </button>
-          </li>
-          <li role="none">
-            <button
-              type="button"
-              role="menuitem"
-              class="item"
-              disabled={!text || note.kind === 'saved'}
-              onClick={() => {
-                setMenuOpen(false);
-                setPanelOpen(true);
-                void saveNote();
-              }}
-            >
-              Salvar como nota interna
-            </button>
-          </li>
-        </ul>
-      )}
+                  void saveNote();
+                }}
+              >
+                Salvar como nota interna
+              </button>
+            </li>
+          </ul>,
+          ctx.overlayRoot as unknown as Element,
+        )}
 
       {panelOpen &&
         createPortal(
@@ -347,7 +396,7 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
             </div>
             <div class="foot">Gerado por IA no seu computador. Confira antes de usar.</div>
           </div>,
-          ctx.panelRoot as unknown as Element,
+          ctx.overlayRoot as unknown as Element,
         )}
     </div>
   );

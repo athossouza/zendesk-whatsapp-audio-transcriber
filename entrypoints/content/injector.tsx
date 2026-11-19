@@ -10,19 +10,20 @@ const SHADOW_MODE: ShadowRootMode = import.meta.env.WXT_E2E === '1' ? 'open' : '
 
 export interface Injected {
   buttonHost: HTMLElement;
-  panelHost: HTMLElement;
+  overlayHost: HTMLElement;
   update: (known: KnownTranscript | null) => void;
   remove: () => void;
 }
 
 /**
  * Adds the ⋯ button next to the player's download button (or in the corner of
- * the bubble) and a slot for the transcription box below the player. Both live
- * in closed shadow roots so Zendesk CSS and ours never mix (spec section 5).
+ * the bubble) and a floating layer in <body> for the menu and the transcription
+ * box (messages clip their content). Both live in closed shadow roots so Zendesk
+ * CSS and ours never mix (spec section 5).
  */
 export function inject(
   candidate: AudioCandidate,
-  ctx: Omit<AudioContextInfo, 'panelRoot'>,
+  ctx: Omit<AudioContextInfo, 'player' | 'buttonHost' | 'overlayHost' | 'overlayRoot'>,
   known: KnownTranscript | null,
 ): Injected {
   candidate.player.setAttribute(AUDIO_ATTR, ctx.audioKey);
@@ -47,25 +48,31 @@ export function inject(
     box.appendChild(buttonHost);
   }
 
-  const panelHost = document.createElement(HOST_TAG);
-  panelHost.style.display = 'block';
-  const panelRoot = panelHost.attachShadow({ mode: SHADOW_MODE });
-  addStyle(panelRoot);
-  candidate.player.insertAdjacentElement('afterend', panelHost);
+  const overlayHost = document.createElement(HOST_TAG);
+  overlayHost.setAttribute('data-atveza-overlay', ctx.audioKey);
+  const overlayRoot = overlayHost.attachShadow({ mode: SHADOW_MODE });
+  addStyle(overlayRoot);
+  document.body.appendChild(overlayHost);
 
-  const fullCtx: AudioContextInfo = { ...ctx, panelRoot };
+  const fullCtx: AudioContextInfo = {
+    ...ctx,
+    player: candidate.player,
+    buttonHost,
+    overlayHost,
+    overlayRoot,
+  };
   const draw = (k: KnownTranscript | null) =>
     render(<AudioTools ctx={fullCtx} known={k} />, buttonRoot);
   draw(known);
 
   return {
     buttonHost,
-    panelHost,
+    overlayHost,
     update: draw,
     remove: () => {
       render(null, buttonRoot);
       buttonHost.remove();
-      panelHost.remove();
+      overlayHost.remove();
       candidate.player.removeAttribute(AUDIO_ATTR);
     },
   };
