@@ -1,144 +1,229 @@
+/*
+ * Visual language copied from the Agent Workspace itself (Zendesk Garden),
+ * measured on d3v-atveza: ghost buttons, 32 px round icon buttons in grey,
+ * blue text for the main action, white menus with a light border.
+ * The theme follows Zendesk (data-theme on the host), not the OS.
+ */
 :host {
   all: initial;
-  --fg: #2f3941;
-  --muted: #68737d;
-  --bg: rgba(255, 255, 255, 0.85);
-  --border: rgba(47, 57, 65, 0.16);
+  --fg: #293239;
+  --muted: #5c6970;
+  --subtle: #848f99;
+  --disabled: #c2c8cc;
+  --surface: rgba(255, 255, 255, 0.92);
+  --border: #e8eaec;
+  --hover: rgba(92, 105, 112, 0.08);
+  --active: rgba(92, 105, 112, 0.16);
   --accent: #1f73b7;
+  --accent-hover: #144a75;
+  --accent-soft: rgba(31, 115, 183, 0.08);
   --ok: #037f4c;
-  --error: #cc3340;
-  --hover: rgba(31, 115, 183, 0.08);
+  --error: #cd3642;
+  --shadow: 0 16px 28px rgba(4, 68, 77, 0.15);
+  --focus: 0 0 0 2px #fff, 0 0 0 4px rgba(31, 115, 183, 0.6);
   font:
-    14px/1.5 system-ui,
+    14px/18px system-ui,
     -apple-system,
     'Segoe UI',
     Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    'Helvetica Neue',
+    Arial,
     sans-serif;
   color: var(--fg);
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :host {
-    --fg: #e9ebed;
-    --muted: #b0b8be;
-    --bg: rgba(40, 45, 52, 0.85);
-    --border: rgba(255, 255, 255, 0.16);
-    --accent: #5293c7;
-    --ok: #5eae91;
-    --error: #eb6651;
-    --hover: rgba(82, 147, 199, 0.16);
-  }
+:host([data-theme='dark']) {
+  --fg: #e9ebed;
+  --muted: #b0b8be;
+  --subtle: #8b959e;
+  --disabled: #5c6970;
+  --surface: rgba(32, 38, 43, 0.94);
+  --border: #39434b;
+  --hover: rgba(176, 184, 190, 0.1);
+  --active: rgba(176, 184, 190, 0.18);
+  --accent: #5ea3e0;
+  --accent-hover: #8cc0ee;
+  --accent-soft: rgba(94, 163, 224, 0.12);
+  --ok: #5eae91;
+  --error: #eb6651;
+  --shadow: 0 16px 28px rgba(0, 0, 0, 0.4);
+  --focus: 0 0 0 2px #20262b, 0 0 0 4px rgba(94, 163, 224, 0.7);
 }
 
 * {
   box-sizing: border-box;
 }
 
+svg {
+  flex: none;
+  display: block;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+}
+
+button:focus {
+  outline: none;
+}
+
+button:focus-visible {
+  box-shadow: var(--focus);
+}
+
+/* ⋯ and header tools: same size and color as the player's download icon. */
 .more {
   position: relative;
   display: inline-flex;
   vertical-align: middle;
 }
 
-.more-btn {
-  width: 24px;
-  height: 24px;
+.icon-btn {
+  position: relative;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
-  border-radius: 50%;
+  border-radius: 100px;
   background: transparent;
-  color: var(--fg);
-  opacity: 0.6;
-  cursor: pointer;
+  color: var(--muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition:
+    background-color 0.1s ease-in-out,
+    color 0.1s ease-in-out;
 }
 
-.more-btn:hover,
-.more-btn[aria-expanded='true'] {
-  opacity: 1;
+.icon-btn:hover {
   background: var(--hover);
+  color: var(--fg);
 }
 
-.more-btn:focus-visible,
-.btn:focus-visible,
-.item:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-  opacity: 1;
+.icon-btn:active,
+.icon-btn[aria-expanded='true'] {
+  background: var(--active);
+  color: var(--fg);
 }
 
 .dot {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 6px;
+  right: 6px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 0 2px var(--surface);
 }
 
+/* Menu: like Zendesk's own dropdowns. */
 .menu {
   position: fixed;
   z-index: 2147483000;
-  min-width: 220px;
-  padding: 4px 0;
+  visibility: hidden;
   margin: 0;
+  padding: 8px 0;
   list-style: none;
-  background: var(--bg);
+  background: var(--surface);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  border-radius: 5px;
+  box-shadow: var(--shadow);
 }
 
 .item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
-  padding: 6px 12px;
+  padding: 8px 16px;
   border: 0;
   background: transparent;
-  color: var(--fg);
-  font: inherit;
   text-align: left;
+  line-height: 20px;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.item:hover:not(:disabled) {
-  background: var(--hover);
+.item svg {
+  color: var(--muted);
+}
+
+.item:hover:not(:disabled),
+.item:focus-visible {
+  background: var(--accent-soft);
+  box-shadow: none;
 }
 
 .item:disabled {
-  color: var(--muted);
+  color: var(--disabled);
   cursor: default;
 }
 
+.item:disabled svg {
+  color: var(--disabled);
+}
+
+/* Transcription box. */
 .panel {
   position: fixed;
   z-index: 2147482999;
+  visibility: hidden;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 10px 12px;
-  background: var(--bg);
+  background: var(--surface);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .head {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 6px;
+  padding: 4px 4px 0 16px;
+  min-height: 40px;
 }
 
-.head strong {
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--fg);
+  min-width: 0;
+}
+
+.title svg {
+  color: var(--muted);
+}
+
+.meta {
+  font-weight: 400;
+  color: var(--subtle);
+  white-space: nowrap;
+}
+
+.meta::before {
+  content: '·';
+  margin-right: 8px;
+}
+
+.tools {
+  display: inline-flex;
+  gap: 0;
 }
 
 .body {
@@ -146,26 +231,141 @@
   min-height: 0;
   max-height: 50vh;
   overflow-y: auto;
+  padding: 4px 16px 12px;
+}
+
+.text {
+  margin: 0;
+  line-height: 20px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  user-select: text;
 }
 
 .status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
 }
 
 .status.error {
   color: var(--error);
 }
 
-.status.ok {
-  color: var(--ok);
+progress {
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin-top: 8px;
+  appearance: none;
+  border: 0;
+  border-radius: 2px;
+  background: var(--hover);
+  overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+  background: var(--hover);
+}
+
+progress::-webkit-progress-value {
+  background: var(--accent);
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex: none;
 }
 
 .typing::after {
-  content: '▍';
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 14px;
   margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  opacity: 0.6;
   animation: blink 1s steps(2) infinite;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px 6px 16px;
+  border-top: 1px solid var(--border);
+  min-height: 44px;
+}
+
+.disclaimer {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--subtle);
+}
+
+/* Main action: blue text button, like Zendesk's "Enviar". */
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 32px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 30px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.link-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+
+.link-btn:disabled {
+  color: var(--disabled);
+  cursor: default;
+}
+
+.note-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  font-size: 12px;
+  color: var(--muted);
+  padding-right: 8px;
+  white-space: nowrap;
+}
+
+.note-state.ok {
+  color: var(--ok);
+}
+
+.note-state.error {
+  color: var(--error);
+  white-space: normal;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes blink {
@@ -174,47 +374,8 @@
   }
 }
 
-progress {
-  width: 100%;
-  height: 6px;
-  margin-top: 6px;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.btn {
-  font: inherit;
-  font-size: 13px;
-  padding: 3px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
-  cursor: pointer;
-}
-
-.btn.primary {
-  background: var(--accent);
-  color: #fff;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.foot {
-  margin-top: 8px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
 @media (prefers-reduced-motion: reduce) {
+  .spinner,
   .typing::after {
     animation: none;
   }

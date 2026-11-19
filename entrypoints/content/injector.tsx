@@ -2,6 +2,7 @@ import { render } from 'preact';
 import type { AudioCandidate } from './detector';
 import { AudioTools, type AudioContextInfo, type KnownTranscript } from './ui/AudioTools';
 import css from './ui/styles.css?inline';
+import { pageTheme } from './ui/theme';
 
 export const AUDIO_ATTR = 'data-atveza-audio';
 const HOST_TAG = 'atveza-audio-tools';
@@ -12,6 +13,8 @@ export interface Injected {
   buttonHost: HTMLElement;
   overlayHost: HTMLElement;
   update: (known: KnownTranscript | null) => void;
+  /** Re-reads the Zendesk theme (light/dark). */
+  refreshTheme: () => void;
   remove: () => void;
 }
 
@@ -61,6 +64,13 @@ export function inject(
     overlayHost,
     overlayRoot,
   };
+  const refreshTheme = () => {
+    const theme = pageTheme();
+    buttonHost.setAttribute('data-theme', theme);
+    overlayHost.setAttribute('data-theme', theme);
+  };
+  refreshTheme();
+
   const draw = (k: KnownTranscript | null) =>
     render(<AudioTools ctx={fullCtx} known={k} />, buttonRoot);
   draw(known);
@@ -69,6 +79,7 @@ export function inject(
     buttonHost,
     overlayHost,
     update: draw,
+    refreshTheme,
     remove: () => {
       render(null, buttonRoot);
       buttonHost.remove();

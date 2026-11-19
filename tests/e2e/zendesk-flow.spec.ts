@@ -53,7 +53,10 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context, exten
   await expect(more).toHaveCount(2);
 
   await more.first().click();
-  await page.getByRole('menuitem', { name: 'Transcrever' }).click();
+  const transcribeItem = page.getByRole('menuitem', { name: 'Transcrever' });
+  await expect(transcribeItem).toBeVisible();
+  await page.screenshot({ path: 'test-results/ui-menu.png' });
+  await transcribeItem.click();
 
   const dialog = page.getByRole('dialog', { name: 'Transcrição do áudio' });
   await expect(dialog).toBeVisible();
@@ -63,8 +66,10 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context, exten
   console.log('TRANSCRIPT:', text);
   expect(text.toLowerCase()).toContain('licença');
 
+  await page.screenshot({ path: 'test-results/ui-panel.png' });
   await save.click();
   await expect(dialog.getByText('Salva no ticket')).toBeVisible();
+  await page.screenshot({ path: 'test-results/ui-saved.png' });
   expect(notes).toHaveLength(1);
   const comment = (notes[0] as { ticket: { comment: { body: string; public: boolean } } }).ticket
     .comment;

@@ -11,6 +11,15 @@ import {
 } from '@/src/shared/transcription-state';
 import { buildNoteBody, NoteError, noteErrorMessage, type ZendeskApi } from '../zendesk-api';
 import { applyPlacement, placeMenu, placePanel, toBox } from './anchor';
+import {
+  IconCheck,
+  IconClose,
+  IconCopy,
+  IconMore,
+  IconNote,
+  IconRefresh,
+  IconTranscript,
+} from './icons';
 
 export interface AudioContextInfo {
   audioKey: string;
@@ -51,6 +60,7 @@ type NoteState =
 export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscript | null }) {
   const { ctx } = props;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [state, setState] = useState<TranscriptionState>({ kind: 'idle' });
   const [known, setKnown] = useState<KnownTranscript | null>(props.known);
@@ -226,7 +236,10 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
   };
 
   const copy = async () => {
-    if (text) await navigator.clipboard.writeText(text);
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   const onMenuKey = (e: KeyboardEvent) => {
@@ -246,26 +259,25 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
   // While (re)transcribing, show only the new text, never the previous one.
   const showText = state.kind === 'transcribing' ? state.text : busy ? null : text;
 
+  const meta = headerDetails(known?.audioSeconds ?? ctx.durationSeconds, known?.model ?? null);
+  const canSave = !busy && !!text && note.kind !== 'saved' && note.kind !== 'already';
+
   return (
     <div class="more">
       <button
         ref={button}
         type="button"
-        class="more-btn"
+        class="icon-btn more-btn"
         aria-label="Mais ações do áudio"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        title="Transcrever áudio"
+        title={text ? 'Transcrição disponível' : 'Transcrever áudio'}
         onClick={() => {
           if (panelOpen) closePanel();
           else setMenuOpen(!menuOpen);
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-          <circle cx="3" cy="8" r="1.5" fill="currentColor" />
-          <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-          <circle cx="13" cy="8" r="1.5" fill="currentColor" />
-        </svg>
+        <IconMore />
         {text && <span class="dot" aria-hidden="true" />}
       </button>
 
@@ -285,6 +297,7 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
                   } else void transcribe();
                 }}
               >
+                <IconTranscript />
                 {text ? 'Ver transcrição' : 'Transcrever'}
               </button>
             </li>
@@ -299,6 +312,7 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
                   setMenuOpen(false);
                 }}
               >
+                <IconCopy />
                 Copiar transcrição
               </button>
             </li>
@@ -314,6 +328,7 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
                   void saveNote();
                 }}
               >
+                <IconNote />
                 Salvar como nota interna
               </button>
             </li>
@@ -331,77 +346,107 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
             aria-modal="false"
             onKeyDown={onPanelKey}
           >
-            <div class="head">
-              <strong>Transcrição</strong>
-              <span>
-                {headerDetails(known?.audioSeconds ?? ctx.durationSeconds, known?.model ?? null)}
+            <header class="head">
+              <span class="title">
+                <IconTranscript />
+                Transcrição
+                {meta && <span class="meta">{meta}</span>}
               </span>
-            </div>
+              <span class="tools">
+                {!busy && text && (
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    aria-label={copied ? 'Copiado' : 'Copiar transcrição'}
+                    title={copied ? 'Copiado' : 'Copiar'}
+                    onClick={() => void copy()}
+                  >
+                    {copied ? <IconCheck /> : <IconCopy />}
+                  </button>
+                )}
+                {!busy && (text || state.kind === 'error') && (
+                  <button
+                    type="button"
+                    class="icon-btn"
+                    aria-label="Transcrever de novo"
+                    title="Transcrever de novo"
+                    onClick={() => void transcribe()}
+                  >
+                    <IconRefresh />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  class="icon-btn"
+                  aria-label={busy ? 'Cancelar' : 'Fechar'}
+                  title={busy ? 'Cancelar' : 'Fechar'}
+                  onClick={closePanel}
+                >
+                  <IconClose />
+                </button>
+              </span>
+            </header>
 
             <div class="body" aria-live="polite">
               {busy && state.kind !== 'transcribing' && (
                 <div class="status">
-                  {stateLabel(state)}
-                  {state.kind === 'downloading' &&
-                    state.totalBytes > 0 &&
-                    ` · ${formatMb(state.loadedBytes)} de ${formatMb(state.totalBytes)}`}
-                  {state.kind === 'downloading' && state.totalBytes > 0 && (
-                    <progress value={state.loadedBytes} max={state.totalBytes} />
-                  )}
+                  <span class="spinner" aria-hidden="true" />
+                  <span>
+                    {stateLabel(state)}
+                    {state.kind === 'downloading' &&
+                      state.totalBytes > 0 &&
+                      ` · ${formatMb(state.loadedBytes)} de ${formatMb(state.totalBytes)}`}
+                  </span>
                 </div>
               )}
+              {state.kind === 'downloading' && state.totalBytes > 0 && (
+                <progress value={state.loadedBytes} max={state.totalBytes} />
+              )}
               {showText && (
-                <span class={state.kind === 'transcribing' ? 'typing' : ''}>{showText}</span>
+                <p class={state.kind === 'transcribing' ? 'text typing' : 'text'}>{showText}</p>
               )}
               {state.kind === 'transcribing' && !showText && (
-                <span class="status typing">Transcrevendo</span>
+                <div class="status">
+                  <span class="spinner" aria-hidden="true" />
+                  <span>Transcrevendo</span>
+                </div>
               )}
               {state.kind === 'error' && <div class="status error">{state.message}</div>}
             </div>
 
-            {note.kind === 'saving' && <div class="status">Salvando no ticket…</div>}
-            {note.kind === 'saved' && <div class="status ok">✓ Salva no ticket</div>}
-            {note.kind === 'already' && <div class="status ok">✓ Já salva neste ticket</div>}
-            {note.kind === 'error' && <div class="status error">{note.message}</div>}
-
-            <div class="actions">
-              {busy && (
-                <button type="button" class="btn" onClick={closePanel}>
-                  Cancelar
+            <footer class="foot">
+              <span class="disclaimer">
+                Gerado por IA no seu computador. Confira antes de usar.
+              </span>
+              {note.kind === 'saving' && (
+                <span class="note-state">
+                  <span class="spinner" aria-hidden="true" />
+                  Salvando…
+                </span>
+              )}
+              {note.kind === 'saved' && (
+                <span class="note-state ok">
+                  <IconCheck /> Salva no ticket
+                </span>
+              )}
+              {note.kind === 'already' && (
+                <span class="note-state ok">
+                  <IconCheck /> Já salva neste ticket
+                </span>
+              )}
+              {note.kind === 'error' && <span class="note-state error">{note.message}</span>}
+              {canSave && note.kind !== 'saving' && (
+                <button
+                  type="button"
+                  class="link-btn"
+                  disabled={note.kind === 'error' && !note.retry}
+                  onClick={() => void saveNote()}
+                >
+                  <IconNote />
+                  Salvar como nota interna
                 </button>
               )}
-              {!busy && text && (
-                <>
-                  <button type="button" class="btn" onClick={() => void copy()}>
-                    Copiar
-                  </button>
-                  {note.kind !== 'saved' && note.kind !== 'already' && (
-                    <button
-                      type="button"
-                      class="btn primary"
-                      disabled={note.kind === 'saving' || (note.kind === 'error' && !note.retry)}
-                      onClick={() => void saveNote()}
-                    >
-                      Salvar como nota interna
-                    </button>
-                  )}
-                  <button type="button" class="btn" onClick={() => void transcribe()}>
-                    Transcrever de novo
-                  </button>
-                </>
-              )}
-              {!busy && state.kind === 'error' && (
-                <button type="button" class="btn" onClick={() => void transcribe()}>
-                  Tentar de novo
-                </button>
-              )}
-              {!busy && (
-                <button type="button" class="btn" onClick={closePanel}>
-                  Fechar
-                </button>
-              )}
-            </div>
-            <div class="foot">Gerado por IA no seu computador. Confira antes de usar.</div>
+            </footer>
           </div>,
           ctx.overlayRoot as unknown as Element,
         )}

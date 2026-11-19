@@ -68,7 +68,7 @@ export function placeMenu(
   viewportHeight: number,
 ): Placement {
   const visible = button.bottom > clip.top && button.top < clip.bottom;
-  const width = 220;
+  const width = 248;
   const left = Math.max(0, button.right - width);
   const fitsBelow = button.bottom + GAP + menuHeight <= Math.max(clip.bottom, viewportHeight - 8);
   return fitsBelow
@@ -89,6 +89,8 @@ export function toBox(r: DOMRect): Box {
 
 export function applyPlacement(el: HTMLElement, p: Placement): void {
   el.style.display = p.visible ? '' : 'none';
+  // Floating UI starts hidden (CSS) and shows only once placed: no flash in the corner.
+  el.style.visibility = 'visible';
   el.style.left = `${p.left}px`;
   el.style.width = `${p.width}px`;
   el.style.top = p.top === null ? '' : `${p.top}px`;

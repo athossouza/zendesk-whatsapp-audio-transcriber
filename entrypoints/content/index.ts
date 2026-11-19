@@ -63,6 +63,8 @@ async function start(): Promise<void> {
       if (!player.isConnected || !item.buttonHost.isConnected || !item.overlayHost.isConnected) {
         item.remove();
         injected.delete(player);
+      } else {
+        item.refreshTheme();
       }
     }
 

@@ -38,7 +38,7 @@ describe('placeMenu', () => {
   it('right-aligns under the button and flips up near the bottom', () => {
     expect(placeMenu(box(200, 224, 500, 24), clip, 100, 900)).toMatchObject({
       top: 228,
-      left: 524 - 220,
+      left: 524 - 248,
     });
     expect(placeMenu(box(860, 884, 500, 24), clip, 100, 900)).toMatchObject({
       top: null,
