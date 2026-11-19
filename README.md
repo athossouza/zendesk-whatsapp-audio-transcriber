@@ -4,16 +4,19 @@ Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudi
 
 - Especificação (fonte da verdade): [`docs/especificacao-tecnica.md`](docs/especificacao-tecnica.md)
 - Relatório da Fase 0: [`docs/fase-0-relatorio.md`](docs/fase-0-relatorio.md)
+- Relatório da Fase 1: [`docs/fase-1-relatorio.md`](docs/fase-1-relatorio.md)
+
+> Mantenha o projeto fora de pastas sincronizadas (iCloud, Drive). O macOS pode tirar arquivos do disco e travar o build.
 
 ## Status
 
-| Fase               | Status                                                                       |
-| ------------------ | ---------------------------------------------------------------------------- |
-| 0 · Descoberta     | ✅ Código pronto; falta a validação com a extensão carregada (ver relatório) |
-| 1 · Teste do motor | ⏳                                                                           |
-| 2 · MVP completo   | ⏳                                                                           |
-| 3 · Piloto na SKA  | ⏳                                                                           |
-| 4 · Liberação      | ⏳                                                                           |
+| Fase               | Status                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| 0 · Descoberta     | ✅                                                                                   |
+| 1 · Teste do motor | ✅ Modelo padrão: whisper-large-v3-turbo (falta medir numa máquina típica de agente) |
+| 2 · MVP completo   | 🚧 ⋯, caixa, nota interna e cache prontos; falta testar no Zendesk real              |
+| 3 · Piloto na SKA  | ⏳                                                                                   |
+| 4 · Liberação      | ⏳                                                                                   |
 
 ## Requisitos
 
@@ -28,6 +31,8 @@ npm run dev          # abre um Chrome com a extensão e recarrega a cada mudanç
 npm run build        # gera .output/chrome-mv3 (build "dev": d3v-atveza e pdi-atveza)
 CLIENT=ska npm run build   # build para a SKA (clients/ska.json)
 npm run check        # lint + formatação + tipos + testes + build
+npm run test:e2e     # Playwright com a extensão carregada (baixa o modelo na 1ª vez)
+npm run bench        # bancada da Fase 1 (abre um Chromium visível)
 ```
 
 ### Carregar a extensão no Chrome

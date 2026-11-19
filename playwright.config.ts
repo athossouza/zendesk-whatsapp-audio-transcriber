@@ -5,5 +5,5 @@ export default defineConfig({
   workers: 1,
   timeout: 10 * 60 * 1000,
   reporter: [['list']],
-  use: { trace: 'retain-on-failure' },
+  use: { trace: 'retain-on-failure', actionTimeout: 30_000 },
 });

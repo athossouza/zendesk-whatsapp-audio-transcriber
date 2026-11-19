@@ -27,6 +27,11 @@ export const test = base.extend<{ context: BrowserContext; extensionId: string }
   },
   extensionId: async ({ context }, use) => {
     const worker = context.serviceWorkers()[0] ?? (await context.waitForEvent('serviceworker'));
+    // Each test starts with empty settings and cache; downloaded models are kept.
+    await worker.evaluate(async () => {
+      await chrome.storage.local.clear();
+      await chrome.storage.sync.clear();
+    });
     await use(new URL(worker.url()).host);
   },
 });

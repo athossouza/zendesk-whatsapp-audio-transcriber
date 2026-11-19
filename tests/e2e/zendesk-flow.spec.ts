@@ -14,7 +14,8 @@ const audio = readFileSync(resolve(ROOT, 'public/samples/teste-ptbr.ogg'));
  * with the Zendesk API mocked. Uses whatever model the options select (default
  * turbo on WebGPU, small on WASM in headless runs without GPU).
  */
-test('⋯ → Transcrever → Salvar como nota interna', async ({ context }) => {
+test('⋯ → Transcrever → Salvar como nota interna', async ({ context, extensionId }) => {
+  expect(extensionId).toBeTruthy(); // fixture resets extension state
   const notes: unknown[] = [];
   await context.route(`${ORIGIN}/**`, async (route) => {
     const url = new URL(route.request().url());
@@ -42,8 +43,6 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context }) => 
   });
 
   const page = await context.newPage();
-  page.on('console', (m) => console.log('PAGE', m.type(), m.text()));
-  for (const w of context.serviceWorkers()) w.on('console', (m) => console.log('SW', m.text()));
   await page.goto(`${ORIGIN}/agent/tickets/454`);
 
   // One ⋯ per audio (2 in the fixture), no duplicates after re-scans.
@@ -74,11 +73,6 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context }) => 
   expect(comment.body).toMatch(/\[atveza-transcricao:[a-f0-9]{32}\]$/);
 
   // Esc closes and returns focus to ⋯; reopening shows the cached transcript.
-  console.log('ACTIVE:', await page.evaluate(() => {
-    const a = document.activeElement;
-    const inner = (a as HTMLElement | null)?.shadowRoot?.activeElement;
-    return `${a?.tagName} > ${inner?.tagName ?? '-'} ${inner?.textContent ?? ''}`;
-  }));
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
   await more.first().click();

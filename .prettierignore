@@ -3,3 +3,6 @@
 node_modules
 package-lock.json
 docs/especificacao-tecnica.md
+.output-e2e
+test-results
+bench-results

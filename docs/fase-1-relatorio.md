@@ -4,9 +4,9 @@ Data: 2026-11-19 · Transformers.js 4.3.2 · ONNX Runtime Web 1.31 (build asynci
 
 ## Máquina testada
 
-| Máquina | GPU | WebGPU | `shader-f16` | Isolamento (WASM multithread) |
-| --- | --- | --- | --- | --- |
-| MacBook, Apple M2, 16 GB | integrada (M2) | sim | sim | sim |
+| Máquina                  | GPU            | WebGPU | `shader-f16` | Isolamento (WASM multithread) |
+| ------------------------ | -------------- | ------ | ------------ | ----------------------------- |
+| MacBook, Apple M2, 16 GB | integrada (M2) | sim    | sim          | sim                           |
 
 > A especificação pede pelo menos 2 máquinas, uma delas típica dos agentes. Só a primeira foi medida. Para medir uma máquina de agente: instalar a extensão, abrir **Opções → Bancada de testes**, clicar em **Rodar** e depois em **Baixar CSV**.
 
@@ -18,13 +18,13 @@ Seis áudios sintéticos em PT-BR (vozes do macOS), convertidos para OGG/Opus 16
 
 ## Resultados
 
-| Modelo · processamento · precisão | Download | Carga (1ª vez, com download) | Áudio de 50 s | 1ª palavra (média) | WER | Áudio só com ruído |
-| --- | --- | --- | --- | --- | --- | --- |
-| whisper-base · WebGPU · enc fp16 / dec q4 | 168 MB | 10,7 s | 4,6 s | 0,3 s | 20,5% | "A" |
-| whisper-base · WASM · q8 | 80 MB | 1,6 s* | 3,9 s | 0,9 s | 22,9% | "O que é isso?" |
-| whisper-small · WebGPU · enc fp16 / dec q4 | 413 MB | 18,8 s | 8,5 s | 0,6 s | 8,8% | "e" |
-| whisper-small · WASM · q8 | 252 MB | 15,2 s | 10,9 s | 2,9 s | 7,8% | "E aí" |
-| **whisper-large-v3-turbo · WebGPU · q4f16** | **566 MB** | **30,2 s** | **8,8 s** | **2,5 s** | **2,9%** | **vazio ✓** |
+| Modelo · processamento · precisão           | Download   | Carga (1ª vez, com download) | Áudio de 50 s | 1ª palavra (média) | WER      | Áudio só com ruído |
+| ------------------------------------------- | ---------- | ---------------------------- | ------------- | ------------------ | -------- | ------------------ |
+| whisper-base · WebGPU · enc fp16 / dec q4   | 168 MB     | 10,7 s                       | 4,6 s         | 0,3 s              | 20,5%    | "A"                |
+| whisper-base · WASM · q8                    | 80 MB      | 1,6 s*                       | 3,9 s         | 0,9 s              | 22,9%    | "O que é isso?"    |
+| whisper-small · WebGPU · enc fp16 / dec q4  | 413 MB     | 18,8 s                       | 8,5 s         | 0,6 s              | 8,8%     | "e"                |
+| whisper-small · WASM · q8                   | 252 MB     | 15,2 s                       | 10,9 s        | 2,9 s              | 7,8%     | "E aí"             |
+| **whisper-large-v3-turbo · WebGPU · q4f16** | **566 MB** | **30,2 s**                   | **8,8 s**     | **2,5 s**          | **2,9%** | **vazio ✓**        |
 
 \* já estava em cache, do teste anterior.
 
