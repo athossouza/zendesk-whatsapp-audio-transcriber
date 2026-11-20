@@ -26,16 +26,16 @@ Fonte: [Set up distribution](https://developer.chrome.com/docs/webstore/cws-dash
 
 ## Ficha
 
-| Campo                       | Valor                                                                                                           |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Nome                        | ATVEZA · Transcrever Áudio para Zendesk                                                                         |
-| Resumo (até 132 caracteres) | Transcreve os áudios de WhatsApp dos tickets do Zendesk direto no seu computador, sem enviar o áudio para fora. |
-| Categoria                   | Produtividade → Fluxo de trabalho e planejamento                                                                |
-| Idioma                      | Português (Brasil)                                                                                              |
-| Visibilidade                | **Privada** (só testadores confiáveis) no piloto; **Não listada** na liberação para toda a SKA                  |
-| Ícone                       | `public/icons/128.png`                                                                                          |
-| Capturas de tela            | 1280 × 800 px, de 1 a 5 (ver `docs/store-assets/`)                                                              |
-| Política de privacidade     | https://atveza.com/privacy/ (seção "Transcrever Áudio para Zendesk", texto em `docs/privacidade-secao-site.md`) |
+| Campo                       | Valor                                                                                                                            |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Nome                        | ATVEZA · Transcrever Áudio para Zendesk                                                                                          |
+| Resumo (até 132 caracteres) | Transcreve os áudios de WhatsApp dos tickets do Zendesk direto no seu computador, sem enviar o áudio para fora.                  |
+| Categoria                   | Produtividade → Fluxo de trabalho e planejamento                                                                                 |
+| Idioma                      | Português (Brasil)                                                                                                               |
+| Visibilidade                | **Privada** (só testadores confiáveis) no piloto; **Não listada** na liberação para toda a SKA                                   |
+| Ícone                       | `public/icons/128.png` (marca ATVEZA do rodapé do consultor.cx + símbolo da Zendesk no canto; `npm run brand`)                   |
+| Capturas de tela            | 1280 × 800 px, de 1 a 5 (ver `docs/store-assets/`)                                                                               |
+| Política de privacidade     | https://consultor.cx/politica-de-privacidade (seção "Transcrever Áudio para Zendesk", texto em `docs/privacidade-secao-site.md`) |
 
 ### Descrição
 
@@ -84,8 +84,20 @@ Marcar também as três certificações: não vende dados, não usa para fins n�
 
 ## Antes de enviar
 
-- [ ] Seção da extensão publicada em https://atveza.com/privacy/ (contato: athos@atveza.com).
+- [ ] Seção da extensão publicada em https://consultor.cx/politica-de-privacidade (contato: athos@atveza.com).
 - [x] Capturas de tela aprovadas por Athos em 19/11/2026 (ticket de teste, sem dados de clientes reais).
 - [ ] `npm run check` e `npm run test:e2e` passando.
 - [ ] Teste manual da versão SKA em pdi-atveza (carregar `.output-ska/chrome-mv3` sem compactação).
 - [ ] Revisão da loja leva de horas a alguns dias: contar com isso no cronograma.
+
+## Marca da Zendesk no ícone
+
+Por decisão do Athos (19/11/2026), o ícone e a imagem promocional trazem o símbolo "Z" da Zendesk no canto, sem alteração, junto da marca ATVEZA.
+
+Risco conhecido: a documentação de desenvolvedores da Zendesk pede que suas marcas não sejam usadas em ícones de apps ([Create brand assets](https://developer.zendesk.com/documentation/apps/publish-your-app-or-theme/create_assets/)), e a Chrome Web Store pode tratar o uso de marca de terceiros como falsificação de identidade. Se a revisão recusar, ou a Zendesk pedir a retirada:
+
+```bash
+NO_ZENDESK=1 npm run brand && npm run store:assets
+```
+
+gera ícones e imagem promocional sem o símbolo, prontos para reenviar. O caminho para manter o símbolo é pedir autorização por escrito à Zendesk (programa de parceiros).

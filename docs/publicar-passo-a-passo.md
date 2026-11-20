@@ -50,7 +50,7 @@ Itens → **+ Novo item** → enviar `zendesk-whatsapp-audio-transcriber-ska-0.2
 - **Ícone da loja:** `icone-128.png`
 - **Capturas de tela:** `captura-1-transcricao.png` e `captura-2-menu.png`
 - **Bloco promocional pequeno:** `promo-440x280.png`
-- **Site oficial:** `https://atveza.com`
+- **Site oficial:** `https://consultor.cx`
 - **Suporte:** `mailto:athos@atveza.com`
 - Salvar rascunho.
 
@@ -88,7 +88,7 @@ Itens → **+ Novo item** → enviar `zendesk-whatsapp-audio-transcriber-ska-0.2
 - **URL da política de privacidade:**
 
   ```text
-  https://atveza.com/privacy/
+  https://consultor.cx/politica-de-privacidade
   ```
 
   Antes de enviar, publicar nessa página a seção de `docs/privacidade-secao-site.md`.
