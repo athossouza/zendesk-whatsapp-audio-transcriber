@@ -84,3 +84,14 @@ export function IconInfo() {
     </svg>
   );
 }
+
+/** Crosshair: "show where this is". */
+export function IconLocate() {
+  return (
+    <svg {...base}>
+      <circle cx="8" cy="8" r="4.5" />
+      <path d="M8 1.5v2.5M8 12v2.5M1.5 8H4M12 8h2.5" />
+      <circle cx="8" cy="8" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}

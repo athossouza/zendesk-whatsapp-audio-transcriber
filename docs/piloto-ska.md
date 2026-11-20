@@ -100,5 +100,5 @@ Ao fim de cada semana, perguntar também:
    - **Transcrever de novo** refaz a transcrição;
    - **Salvar como nota interna** grava o texto como nota **privada** no ticket (o cliente não vê).
 5. Um **pontinho azul** no ⋯ indica que o áudio já foi transcrito: **⋯ → Ver transcrição** abre na hora.
-6. Se a caixa estiver atrapalhando (por exemplo, em cima do editor de resposta), **arraste pelo título** "Transcrição" para outro lugar. Para mudar o tamanho, **arraste o canto inferior direito**; o tamanho escolhido fica guardado. **Clique duplo no título** volta a caixa para perto do áudio.
+6. Se a caixa estiver atrapalhando (por exemplo, em cima do editor de resposta), **arraste pelo título** "Transcrição" para outro lugar. Para mudar o tamanho, **arraste o canto inferior direito**; o tamanho escolhido fica guardado. **Clique duplo no título** volta a caixa para perto do áudio. Enquanto a caixa está aberta, o áudio de origem fica com um **contorno azul**, e o título mostra quem enviou, a hora e a duração; o ícone de **mira** no título rola a conversa até o áudio.
 7. Feche a caixa com **Esc** ou no **✕**.

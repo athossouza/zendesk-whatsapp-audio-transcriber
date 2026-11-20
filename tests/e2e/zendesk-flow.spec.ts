@@ -85,6 +85,18 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context, exten
   expect(comment.body).toMatch(/^Transcrição do áudio de Cliente Teste/);
   expect(comment.body).toMatch(/\[atveza-transcricao:[a-f0-9]{32}\]$/);
 
+  // Link box ↔ audio: header names the source and an outline marks the audio.
+  await expect(dialog.locator('header')).toContainText('Cliente Teste');
+  const ring = page.locator('.source-ring');
+  await expect(ring).toBeVisible();
+  const player = (await page
+    .locator('[data-test-id="audio-player-container"]')
+    .first()
+    .boundingBox())!;
+  const ringBox = (await ring.boundingBox())!;
+  expect(Math.round(ringBox.x)).toBe(Math.round(player.x - 4));
+  await expect(dialog.getByRole('button', { name: 'Mostrar o áudio na conversa' })).toBeVisible();
+
   // Drag by the header: the box moves and stays where it was dropped.
   const before = (await dialog.boundingBox())!;
   const head = dialog.locator('header');
@@ -106,6 +118,8 @@ test('⋯ → Transcrever → Salvar como nota interna', async ({ context, exten
   const resized = (await dialog.boundingBox())!;
   expect(Math.round(resized.width - moved.width)).toBe(60);
   expect(Math.round(resized.height - moved.height)).toBe(100);
+  // After moving, the outline still marks the source audio.
+  await expect(ring).toBeVisible();
   await page.screenshot({ path: 'test-results/ui-moved.png' });
 
   // Esc closes and returns focus to ⋯; reopening shows the cached transcript.

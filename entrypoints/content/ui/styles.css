@@ -108,6 +108,7 @@ button:focus-visible {
 }
 
 .icon-btn:active,
+.icon-btn.open,
 .icon-btn[aria-expanded='true'] {
   background: var(--active);
   color: var(--fg);
@@ -217,6 +218,9 @@ button:focus-visible {
   font-weight: 400;
   color: var(--subtle);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .meta::before {
@@ -238,6 +242,13 @@ button:focus-visible {
 .info:focus-visible {
   outline: none;
   box-shadow: var(--focus);
+}
+
+.tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
 }
 
 .close {
@@ -372,6 +383,35 @@ progress::-webkit-progress-value {
   flex: 1 1 auto;
 }
 
+/* Outline over the source audio while its box is open: which audio this is. */
+.source-ring {
+  position: fixed;
+  z-index: 2147482998;
+  pointer-events: none;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  opacity: 0.45;
+  transition:
+    opacity 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+
+.source-ring.strong {
+  opacity: 1;
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.source-ring.pulse {
+  opacity: 1;
+  animation: ring-pulse 0.7s ease-in-out 2;
+}
+
+@keyframes ring-pulse {
+  50% {
+    box-shadow: 0 0 0 8px var(--accent-soft);
+  }
+}
+
 /* Resize grip in the bottom-right corner (two short diagonal strokes). */
 .resizer {
   position: absolute;
@@ -454,6 +494,7 @@ progress::-webkit-progress-value {
 
 @media (prefers-reduced-motion: reduce) {
   .spinner,
+  .source-ring.pulse,
   .status.typing::after,
   .typing p:last-child::after {
     animation: none;

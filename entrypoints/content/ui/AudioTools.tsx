@@ -25,6 +25,7 @@ import {
   IconClose,
   IconCopy,
   IconInfo,
+  IconLocate,
   IconMore,
   IconNote,
   IconTranscript,
@@ -82,6 +83,10 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
   const button = useRef<HTMLButtonElement>(null);
   const firstItem = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
+  /** Outline drawn over the source audio while its box is open (link box ↔ audio). */
+  const ring = useRef<HTMLDivElement>(null);
+  const [linkStrong, setLinkStrong] = useState(false);
+  const [pulse, setPulse] = useState(false);
   /** Set once the agent drags or resizes the box: it then stays put in the window. */
   const manual = useRef<ManualRect | null>(null);
   /** Size the agent chose last time (remembered across audios and sessions). */
@@ -129,6 +134,17 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
       const clip = toBox((clipEl ?? document.documentElement).getBoundingClientRect());
       const vh = window.innerHeight;
       const vw = window.innerWidth;
+      if (ring.current) {
+        const r = ctx.player.getBoundingClientRect();
+        const onScreen = r.bottom > clip.top && r.top < clip.bottom && r.height > 0;
+        Object.assign(ring.current.style, {
+          display: onScreen ? '' : 'none',
+          left: `${r.left - 4}px`,
+          top: `${r.top - 4}px`,
+          width: `${r.width + 8}px`,
+          height: `${r.height + 8}px`,
+        });
+      }
       if (panel.current) {
         if (manual.current) {
           manual.current = clampRect(manual.current, vw, vh);
@@ -225,6 +241,13 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
         // Extension context gone: size is kept for this page only.
       }
     }
+  };
+
+  /** Scrolls the conversation to the source audio and makes its outline pulse. */
+  const locateAudio = () => {
+    ctx.player.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    setPulse(true);
+    setTimeout(() => setPulse(false), 1400);
   };
 
   /** Double-click on the header: back next to the audio, default size. */
@@ -371,6 +394,11 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
 
   const seconds = known?.audioSeconds ?? ctx.durationSeconds;
   const duration = seconds === null ? null : formatDuration(seconds);
+  // Which audio this box belongs to: sender, message time and duration.
+  const sentAt = ctx.time
+    ? new Date(ctx.time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    : null;
+  const source = [ctx.author, sentAt, duration].filter(Boolean).join(' · ');
   const disclaimer = `Gerado por IA no seu computador${
     known?.model ? ` (${shortModelName(known.model)})` : ''
   }. Confira antes de usar.`;
@@ -381,7 +409,7 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
       <button
         ref={button}
         type="button"
-        class="icon-btn more-btn"
+        class={`icon-btn more-btn${panelOpen ? ' open' : ''}`}
         aria-label="Mais ações do áudio"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
@@ -453,12 +481,26 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
       {panelOpen &&
         createPortal(
           <div
+            ref={ring}
+            class={`source-ring${linkStrong ? ' strong' : ''}${pulse ? ' pulse' : ''}`}
+            aria-hidden="true"
+          />,
+          ctx.overlayRoot as unknown as Element,
+        )}
+
+      {panelOpen &&
+        createPortal(
+          <div
             ref={panel}
             class="panel"
             role="dialog"
             aria-label="Transcrição do áudio"
             aria-modal="false"
             onKeyDown={onPanelKey}
+            onPointerEnter={() => setLinkStrong(true)}
+            onPointerLeave={() => setLinkStrong(false)}
+            onFocusIn={() => setLinkStrong(true)}
+            onFocusOut={() => setLinkStrong(false)}
           >
             <header
               class="head"
@@ -471,7 +513,11 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
             >
               <span class="title">
                 Transcrição
-                {duration && <span class="meta">{duration}</span>}
+                {source && (
+                  <span class="meta" title={source}>
+                    {source}
+                  </span>
+                )}
                 <span
                   class="info"
                   tabIndex={0}
@@ -482,15 +528,26 @@ export function AudioTools(props: { ctx: AudioContextInfo; known: KnownTranscrip
                   <IconInfo />
                 </span>
               </span>
-              <button
-                type="button"
-                class="close"
-                aria-label={busy ? 'Cancelar' : 'Fechar'}
-                title={busy ? 'Cancelar' : 'Fechar'}
-                onClick={closePanel}
-              >
-                <IconClose />
-              </button>
+              <span class="tools">
+                <button
+                  type="button"
+                  class="close"
+                  aria-label="Mostrar o áudio na conversa"
+                  title="Mostrar o áudio na conversa"
+                  onClick={locateAudio}
+                >
+                  <IconLocate />
+                </button>
+                <button
+                  type="button"
+                  class="close"
+                  aria-label={busy ? 'Cancelar' : 'Fechar'}
+                  title={busy ? 'Cancelar' : 'Fechar'}
+                  onClick={closePanel}
+                >
+                  <IconClose />
+                </button>
+              </span>
             </header>
 
             <div class="body" aria-live="polite">
