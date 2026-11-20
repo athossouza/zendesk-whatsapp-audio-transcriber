@@ -1,6 +1,7 @@
 import { DEFAULT_SELECTORS, joinSelectors, pickSelectors } from '@/src/shared/selectors';
 import { DEFAULT_SETTINGS, loadSettings, resolveSettings } from '@/src/shared/settings';
-import { parseSubdomain, parseTicketId } from '@/src/shared/zendesk-url';
+import { ClientConfigSchema, isAnyZendesk } from '@/src/shared/client-config';
+import { isAllowedSubdomain, parseSubdomain, parseTicketId } from '@/src/shared/zendesk-url';
 
 describe('zendesk-url', () => {
   it.each([
@@ -64,5 +65,20 @@ describe('settings', () => {
   it('reads from chrome.storage.sync', async () => {
     await chrome.storage.sync.set({ discoveryMode: true });
     expect((await loadSettings()).discoveryMode).toBe(true);
+  });
+});
+
+describe('any Zendesk account (store build)', () => {
+  it('empty allowed list means any subdomain; a policy list restricts it', () => {
+    expect(isAllowedSubdomain('acme', [])).toBe(true);
+    expect(isAllowedSubdomain('acme', ['skasuporte'])).toBe(false);
+    expect(isAllowedSubdomain('skasuporte', ['skasuporte'])).toBe(true);
+  });
+
+  it('accepts "*" in client configs and recognizes it', () => {
+    const client = ClientConfigSchema.parse({ name: 'public', zendeskSubdomains: ['*'] });
+    expect(isAnyZendesk(client)).toBe(true);
+    expect(isAnyZendesk({ zendeskSubdomains: ['d3v-atveza'] })).toBe(false);
+    expect(() => ClientConfigSchema.parse({ name: 'x', zendeskSubdomains: ['*.evil'] })).toThrow();
   });
 });

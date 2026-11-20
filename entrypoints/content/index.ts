@@ -7,7 +7,7 @@ import { DEFAULT_SELECTORS } from '@/src/shared/selectors';
 import { loadSettings } from '@/src/shared/settings';
 import { isExtensionContextValid } from '@/src/shared/transcribe-client';
 import { getTranscripts } from '@/src/shared/transcript-cache';
-import { parseSubdomain, parseTicketId } from '@/src/shared/zendesk-url';
+import { isAllowedSubdomain, parseSubdomain, parseTicketId } from '@/src/shared/zendesk-url';
 import { detectAudios, findConversationRoot, type AudioCandidate } from './detector';
 import { inject, type Injected } from './injector';
 import { watchPage } from './page-watcher';
@@ -34,7 +34,7 @@ export default defineContentScript({
 async function start(): Promise<void> {
   const subdomain = parseSubdomain(location.hostname);
   let settings = await loadSettings();
-  if (!subdomain || !settings.allowedSubdomains.includes(subdomain)) return;
+  if (!subdomain || !isAllowedSubdomain(subdomain, settings.allowedSubdomains)) return;
 
   chrome.storage.onChanged.addListener((_changes, area) => {
     if (area === 'sync') void loadSettings().then((s) => (settings = s));

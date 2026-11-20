@@ -3,7 +3,8 @@ import { resolve } from 'node:path';
 import { expect, test } from './fixtures';
 
 const ROOT = resolve(import.meta.dirname, '../..');
-const ORIGIN = 'https://d3v-atveza.zendesk.com';
+// Any account works with the store build: use a made-up subdomain.
+const ORIGIN = 'https://acme-teste.zendesk.com';
 const fixture = readFileSync(resolve(ROOT, 'tests/fixtures/zendesk-ticket.html'), 'utf8')
   // Real audio served by the mocked Zendesk instead of a blob: URL.
   .replace(/blob:https:\/\/d3v-atveza\.zendesk\.com\/[0-9a-f-]+/g, `${ORIGIN}/fake/audio.ogg`);

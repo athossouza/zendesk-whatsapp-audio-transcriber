@@ -18,7 +18,10 @@ export const SettingsSchema = z.object({
     ]),
   modelMirror: z.string().url().startsWith('https://').or(z.literal('')).default(''),
   selectorsUrl: z.string().url().startsWith('https://').or(z.literal('')).default(''),
-  allowedSubdomains: z.array(z.string()).default(__CLIENT__.zendeskSubdomains),
+  /** Empty = any Zendesk account. Companies can restrict it via Chrome policy. */
+  allowedSubdomains: z
+    .array(z.string())
+    .default(__CLIENT__.zendeskSubdomains.includes('*') ? [] : __CLIENT__.zendeskSubdomains),
   maxAudioMinutes: z.number().int().min(1).max(30).default(10),
   discoveryMode: z.boolean().default(false),
   debug: z.boolean().default(false),

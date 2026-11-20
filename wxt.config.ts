@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import preact from '@preact/preset-vite';
 import { defaultClientConditions } from 'vite';
 import { defineConfig } from 'wxt';
-import { ClientConfigSchema, zendeskOrigin } from './src/shared/client-config';
+import { ClientConfigSchema, isAnyZendesk, zendeskOrigin } from './src/shared/client-config';
 
 /** Which clients/<name>.json to build for. `CLIENT=ska npm run build`. */
 const clientName = process.env.CLIENT ?? 'dev';
@@ -11,8 +11,14 @@ const client = ClientConfigSchema.parse(
   JSON.parse(readFileSync(resolve(import.meta.dirname, 'clients', `${clientName}.json`), 'utf8')),
 );
 
-const zendeskHosts = client.zendeskSubdomains.map((s) => `${zendeskOrigin(s)}/*`);
-const agentMatches = client.zendeskSubdomains.map((s) => `${zendeskOrigin(s)}/agent/*`);
+// Store build (`["*"]`): any Zendesk account, but the content script only runs in the
+// agent interface (/agent/*). Client builds keep their own subdomains.
+const zendeskHosts = isAnyZendesk(client)
+  ? ['https://*.zendesk.com/*']
+  : client.zendeskSubdomains.map((s) => `${zendeskOrigin(s)}/*`);
+const agentMatches = isAnyZendesk(client)
+  ? ['https://*.zendesk.com/agent/*']
+  : client.zendeskSubdomains.map((s) => `${zendeskOrigin(s)}/agent/*`);
 
 /** ONNX Runtime WASM shipped inside the package (no remote code in MV3). */
 const ORT_DIST = resolve(import.meta.dirname, 'node_modules/onnxruntime-web/dist');

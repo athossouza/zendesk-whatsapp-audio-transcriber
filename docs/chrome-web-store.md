@@ -21,7 +21,7 @@ Fonte: [Set up distribution](https://developer.chrome.com/docs/webstore/cws-dash
 
 ## Pacote
 
-- Gerar: `npm run zip:ska` → `.output-ska/zendesk-whatsapp-audio-transcriber-ska-<versão>-chrome.zip` (cerca de 7 MB).
+- Gerar: `npm run zip:store` → `.output-public/zendesk-whatsapp-audio-transcriber-public-<versão>-chrome.zip` (versão para qualquer conta do Zendesk) (cerca de 7 MB).
 - Cada nova versão precisa de `version` maior no `package.json`. Correções de seletor não precisam de nova versão (seção 14 da especificação).
 
 ## Ficha
@@ -49,7 +49,7 @@ Fonte: [Set up distribution](https://developer.chrome.com/docs/webstore/cws-dash
 >
 > Na primeira vez, o modelo de IA é baixado e fica guardado no navegador. Funciona melhor em computadores com placa de vídeo compatível com WebGPU; sem ela, usa um modelo mais leve no processador.
 >
-> Extensão para empresas clientes da ATVEZA. Funciona apenas nos endereços do Zendesk configurados para a sua empresa.
+> Funciona em qualquer conta do Zendesk, na área do agente (Agent Workspace). Empresas podem restringir o uso aos seus próprios endereços pela política do Chrome.
 
 ## Finalidade única (single purpose)
 
@@ -57,12 +57,12 @@ Fonte: [Set up distribution](https://developer.chrome.com/docs/webstore/cws-dash
 
 ## Justificativa das permissões
 
-| Permissão                                                                     | Justificativa para a revisão                                                                                                                                               |
-| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `storage`                                                                     | Guardar as configurações do usuário, as transcrições recentes (para não transcrever o mesmo áudio de novo) e a configuração definida pelo administrador.                   |
-| `offscreen`                                                                   | Rodar o modelo de IA num documento offscreen com Web Worker e Web Audio, que o service worker não oferece. A transcrição é longa demais para o service worker.             |
-| `https://skasuporte.zendesk.com/*`, `https://pdi-atveza.zendesk.com/*`        | Mostrar o botão de transcrição nos áudios dos tickets e salvar a nota interna pela API do Zendesk, usando a sessão do agente.                                              |
-| `https://huggingface.co/*`, `https://*.huggingface.co/*`, `https://*.hf.co/*` | Baixar uma única vez os arquivos públicos do modelo de IA (Whisper). A Hugging Face redireciona os downloads para os domínios `*.hf.co`. Nenhum dado do usuário é enviado. |
+| Permissão                                                                     | Justificativa para a revisão                                                                                                                                                                                |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `storage`                                                                     | Guardar as configurações do usuário, as transcrições recentes (para não transcrever o mesmo áudio de novo) e a configuração definida pelo administrador.                                                    |
+| `offscreen`                                                                   | Rodar o modelo de IA num documento offscreen com Web Worker e Web Audio, que o service worker não oferece. A transcrição é longa demais para o service worker.                                              |
+| `https://*.zendesk.com/*`                                                     | Funcionar em qualquer conta do Zendesk. O script só roda na área do agente (`/agent/*`), para mostrar o botão de transcrição nos áudios e salvar a nota interna pela API do Zendesk com a sessão do agente. |
+| `https://huggingface.co/*`, `https://*.huggingface.co/*`, `https://*.hf.co/*` | Baixar uma única vez os arquivos públicos do modelo de IA (Whisper). A Hugging Face redireciona os downloads para os domínios `*.hf.co`. Nenhum dado do usuário é enviado.                                  |
 
 ## Código remoto
 

@@ -22,7 +22,7 @@ Uma extensão do Google Chrome que transcreve em texto os áudios de WhatsApp re
 
 ## Controles disponíveis para a SKA
 
-- **Política do Chrome (TI):** fixar o modelo, o idioma, os subdomínios permitidos, desligar o salvamento automático de notas etc. (`managed_schema.json`).
+- **Política do Chrome (TI):** a extensão da loja funciona em qualquer conta do Zendesk; o TI pode restringi-la a `skasuporte` (`allowedSubdomains`), fixar o modelo, o idioma, desligar o salvamento automático de notas etc. (`managed_schema.json`).
 - **Espelho interno do modelo:** se a SKA não quiser downloads de huggingface.co, o TI pode hospedar os arquivos do modelo internamente.
 - **Apagar dados locais:** cada agente pode apagar transcrições e modelo nas opções da extensão. Desinstalar a extensão apaga tudo.
 

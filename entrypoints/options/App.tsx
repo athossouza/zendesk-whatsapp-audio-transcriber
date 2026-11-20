@@ -64,7 +64,9 @@ export function App() {
       <h1>Transcrever Áudio para Zendesk</h1>
       <p class="muted">
         Versão {chrome.runtime.getManifest().version} · Zendesk:{' '}
-        {settings.allowedSubdomains.join(', ')}
+        {settings.allowedSubdomains.length
+          ? settings.allowedSubdomains.join(', ')
+          : 'qualquer conta'}
       </p>
 
       <section>

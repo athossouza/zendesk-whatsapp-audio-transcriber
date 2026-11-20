@@ -2,7 +2,7 @@
   "name": "zendesk-whatsapp-audio-transcriber",
   "description": "Chrome extension that transcribes WhatsApp audio messages inside Zendesk Agent Workspace, locally with Whisper.",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -21,11 +21,13 @@
     "check": "npm run lint && npm run format:check && npm run typecheck && npm run test && npm run build",
     "test:e2e": "npm run build:e2e && playwright test",
     "bench": "npm run build:e2e && BENCH=1 HEADED=1 playwright test bench",
-    "build:e2e": "WXT_E2E=1 wxt build",
+    "build:e2e": "CLIENT=public WXT_E2E=1 wxt build",
     "build:ska": "CLIENT=ska wxt build",
     "zip:ska": "CLIENT=ska wxt zip",
-    "store:assets": "npm run zip:ska && rm -rf publicacao && mkdir -p publicacao && cp .output-ska/*.zip publicacao/ && cp public/icons/128.png publicacao/icone-128.png && cp docs/store-assets/01-transcricao.png publicacao/captura-1-transcricao.png && cp docs/store-assets/02-menu.png publicacao/captura-2-menu.png && cp docs/store-assets/promo-440x280.png publicacao/promo-440x280.png && test \"$(unzip -Z1 publicacao/*.zip | grep -c 'manifest.json$')\" = 1 || (echo 'ERRO: o pacote deve ter um único manifest.json' && exit 1)",
-    "brand": "node scripts/render-brand.mjs"
+    "store:assets": "npm run zip:store && rm -rf publicacao && mkdir -p publicacao && cp .output-public/*.zip publicacao/ && cp public/icons/128.png publicacao/icone-128.png && cp docs/store-assets/01-transcricao.png publicacao/captura-1-transcricao.png && cp docs/store-assets/02-menu.png publicacao/captura-2-menu.png && cp docs/store-assets/promo-440x280.png publicacao/promo-440x280.png && test \"$(unzip -Z1 publicacao/*.zip | grep -c 'manifest.json$')\" = 1 || (echo 'ERRO: o pacote deve ter um único manifest.json' && exit 1)",
+    "brand": "node scripts/render-brand.mjs",
+    "build:store": "CLIENT=public wxt build",
+    "zip:store": "CLIENT=public wxt zip"
   },
   "dependencies": {
     "@huggingface/transformers": "4.3.2",

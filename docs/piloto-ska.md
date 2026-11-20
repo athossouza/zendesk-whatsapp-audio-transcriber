@@ -2,7 +2,7 @@
 
 **Objetivo:** confirmar, com agentes reais da SKA, que a transcrição permite entender o áudio sem ouvir em **pelo menos 9 de 10 casos** (seção 15 da especificação) e que a extensão é rápida o bastante nos computadores deles.
 
-**Formato:** 2 agentes · 2 semanas · versão `0.2.0` (build `ska`).
+**Formato:** 2 agentes · 2 semanas · versão `0.3.0` da loja (funciona em qualquer conta do Zendesk). Para a SKA, o TI pode restringir o uso a `skasuporte` e aplicar o dicionário de termos pela política do Chrome (`allowedSubdomains` e `replacements`, ver `public/managed_schema.json`).
 
 ## Checklist antes de começar
 
@@ -25,7 +25,7 @@ Enquanto a loja não aprova, dá para começar com a instalação manual (modo d
 
 **Manual (enquanto a loja não aprova):**
 
-1. Receber o arquivo `zendesk-whatsapp-audio-transcriber-ska-0.2.0-chrome.zip` e descompactar numa pasta que não seja apagada.
+1. Receber o arquivo `zendesk-whatsapp-audio-transcriber-public-0.3.0-chrome.zip` e descompactar numa pasta que não seja apagada.
 2. Abrir `chrome://extensions`, ligar **Modo do desenvolvedor**, clicar em **Carregar sem compactação** e escolher a pasta.
 3. Recarregar as abas do Zendesk.
 

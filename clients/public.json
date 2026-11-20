@@ -1,0 +1,5 @@
+{
+  "name": "public",
+  "zendeskSubdomains": ["*"],
+  "replacements": []
+}

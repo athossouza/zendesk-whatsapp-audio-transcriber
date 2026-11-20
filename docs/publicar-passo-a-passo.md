@@ -4,12 +4,12 @@ O Chrome não deixa extensões nem navegadores automatizados mexerem nas página
 
 **Arquivos:** pasta `publicacao/` na raiz do projeto (gerada por `npm run store:assets`):
 
-| Arquivo                                                   | Onde usar                         |
-| --------------------------------------------------------- | --------------------------------- |
-| `zendesk-whatsapp-audio-transcriber-ska-0.2.0-chrome.zip` | Novo item → enviar pacote         |
-| `icone-128.png`                                           | Ficha → Ícone da loja             |
-| `captura-1-transcricao.png`, `captura-2-menu.png`         | Ficha → Capturas de tela          |
-| `promo-440x280.png`                                       | Ficha → Bloco promocional pequeno |
+| Arquivo                                                      | Onde usar                         |
+| ------------------------------------------------------------ | --------------------------------- |
+| `zendesk-whatsapp-audio-transcriber-public-0.3.0-chrome.zip` | Novo item → enviar pacote         |
+| `icone-128.png`                                              | Ficha → Ícone da loja             |
+| `captura-1-transcricao.png`, `captura-2-menu.png`            | Ficha → Capturas de tela          |
+| `promo-440x280.png`                                          | Ficha → Bloco promocional pequeno |
 
 ## 1. Conta (menu à esquerda → Conta)
 
@@ -25,7 +25,7 @@ O Chrome não deixa extensões nem navegadores automatizados mexerem nas página
 
 ## 2. Novo item
 
-Itens → **+ Novo item** → enviar `zendesk-whatsapp-audio-transcriber-ska-0.2.0-chrome.zip`.
+Itens → **+ Novo item** → enviar `zendesk-whatsapp-audio-transcriber-public-0.3.0-chrome.zip`.
 
 ## 3. Ficha da loja (aba "Ficha da loja")
 
@@ -42,7 +42,7 @@ Itens → **+ Novo item** → enviar `zendesk-whatsapp-audio-transcriber-ska-0.2
 
   Na primeira vez, o modelo de IA é baixado e fica guardado no navegador. Funciona melhor em computadores com placa de vídeo compatível com WebGPU; sem ela, usa um modelo mais leve no processador.
 
-  Extensão para empresas clientes da ATVEZA. Funciona apenas nos endereços do Zendesk configurados para a sua empresa.
+  Funciona em qualquer conta do Zendesk, na área do agente (Agent Workspace). Empresas podem restringir o uso aos seus próprios endereços pela política do Chrome.
   ```
 
 - **Categoria:** Produtividade → Fluxo de trabalho e planejamento
@@ -79,7 +79,7 @@ Itens → **+ Novo item** → enviar `zendesk-whatsapp-audio-transcriber-ska-0.2
 - **Justificativa · permissões de host:**
 
   ```text
-  skasuporte.zendesk.com e pdi-atveza.zendesk.com: mostrar o botão de transcrição nos áudios dos tickets e salvar a nota interna pela API do Zendesk, usando a sessão do agente. huggingface.co, *.huggingface.co e *.hf.co: baixar uma única vez os arquivos públicos do modelo de IA (pesos, não código); a Hugging Face redireciona os downloads para *.hf.co. Nenhum dado do usuário é enviado a esses domínios.
+  *.zendesk.com: a extensão funciona em qualquer conta do Zendesk; o script só é executado na área do agente (/agent/*), para mostrar o botão de transcrição nos áudios dos tickets e salvar a nota interna pela API do Zendesk com a sessão do agente. huggingface.co, *.huggingface.co e *.hf.co: baixar uma única vez os arquivos públicos do modelo de IA (pesos, não código); a Hugging Face redireciona os downloads para *.hf.co. Nenhum dado do usuário é enviado a esses domínios.
   ```
 
 - **Você está usando código remoto?** Não.

@@ -4,6 +4,11 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
+### 0.3.0 · Qualquer conta do Zendesk
+
+- A versão da loja funciona em qualquer `*.zendesk.com` (só na área do agente, `/agent/*`), sem configuração.
+- Empresas podem restringir aos próprios subdomínios e definir o dicionário pela política do Chrome.
+
 ### Interface
 
 - Caixa de transcrição pode ser arrastada pelo título e redimensionada pelo canto; o tamanho fica guardado e o clique duplo no título volta ao padrão.

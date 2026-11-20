@@ -11,3 +11,8 @@ export function parseTicketId(pathname: string): number | null {
 export function parseSubdomain(hostname: string): string | null {
   return ZENDESK_HOST.exec(hostname)?.[1] ?? null;
 }
+
+/** Whether the extension should act on this subdomain (empty list = any Zendesk). */
+export function isAllowedSubdomain(subdomain: string, allowed: readonly string[]): boolean {
+  return allowed.length === 0 || allowed.includes(subdomain);
+}

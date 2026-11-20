@@ -30,8 +30,9 @@ Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudi
 npm install
 npm run dev          # abre um Chrome com a extensão e recarrega a cada mudança
 npm run build        # gera .output/chrome-mv3 (build "dev": d3v-atveza e pdi-atveza)
-npm run build:ska    # build da SKA em .output-ska/ (clients/ska.json)
-npm run zip:ska      # zip para a Chrome Web Store
+npm run build:store  # versão da loja: qualquer conta *.zendesk.com (clients/public.json)
+npm run store:assets # zip + ícone + capturas na pasta publicacao/
+npm run build:ska    # versão restrita à SKA em .output-ska/ (clients/ska.json)
 npm run check        # lint + formatação + tipos + testes + build
 npm run test:e2e     # Playwright com a extensão carregada (baixa o modelo na 1ª vez)
 npm run bench        # bancada da Fase 1 (abre um Chromium visível)
