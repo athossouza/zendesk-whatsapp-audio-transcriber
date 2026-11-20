@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Transcrever Áudio para Zendesk · vídeo da loja</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      /* consultor.cx light palette */
+      :root {
+        --bg: #f6f3ed;
+        --ink: #07110d;
+        --primary: #03363d;
+        --accent: #18d394;
+        --muted: rgba(7, 17, 13, 0.62);
+        --zd-blue: #1f73b7;
+        --zd-text: #293239;
+        --zd-muted: #5c6970;
+        --zd-border: #e8eaec;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: system-ui, sans-serif;
+        color: var(--ink);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      .ground {
+        background:
+          radial-gradient(circle at 90% 4%, rgba(24, 211, 148, 0.24), rgba(24, 211, 148, 0) 40%),
+          radial-gradient(circle at 6% 100%, rgba(3, 54, 61, 0.07), rgba(3, 54, 61, 0) 38%),
+          linear-gradient(rgba(3, 54, 61, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
+          linear-gradient(90deg, rgba(3, 54, 61, 0.05) 1px, transparent 1px) 0 0 / 48px 48px,
+          var(--bg);
+      }
+      /* Persistent brand row */
+      .brand-row {
+        position: absolute;
+        left: 120px;
+        top: 84px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--primary);
+      }
+      .brand-row img {
+        width: 52px;
+        height: 52px;
+        display: block;
+      }
+      /* Left copy block, one per scene */
+      .copy {
+        position: absolute;
+        left: 120px;
+        top: 300px;
+        width: 620px;
+      }
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid rgba(3, 54, 61, 0.12);
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--primary);
+      }
+      .kicker i {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent);
+        display: block;
+      }
+      .headline {
+        margin-top: 30px;
+        font-size: 74px;
+        line-height: 1.06;
+        letter-spacing: -0.03em;
+        font-weight: 800;
+      }
+      .headline span {
+        display: block;
+      }
+      .headline .em {
+        color: var(--primary);
+      }
+      .sub {
+        margin-top: 26px;
+        font-size: 28px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+      /* Subtitles */
+      .subtitle {
+        position: absolute;
+        left: 50%;
+        bottom: 54px;
+        width: 1500px;
+        margin-left: -750px;
+        text-align: center;
+      }
+      .subtitle p {
+        display: inline-block;
+        padding: 14px 28px;
+        border-radius: 14px;
+        background: rgba(3, 54, 61, 0.9);
+        color: #fff;
+        font-size: 32px;
+        line-height: 1.35;
+        font-weight: 500;
+      }
+      /* Generic white card */
+      .card {
+        position: absolute;
+        background: #fff;
+        border-radius: 22px;
+        box-shadow:
+          0 0 0 1px rgba(3, 54, 61, 0.1),
+          0 40px 80px -20px rgba(3, 54, 61, 0.3),
+          0 10px 24px rgba(3, 54, 61, 0.08);
+      }
+      /* Zendesk-like audio bubble */
+      .bubble {
+        background: #ecf9f9;
+        border-radius: 10px;
+        padding: 20px 22px;
+      }
+      .bubble .label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 21px;
+        font-weight: 600;
+        color: var(--zd-text);
+      }
+      .bubble .label b {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid #4a5b62;
+        display: block;
+      }
+      .player {
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+      .player .bar {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        height: 64px;
+        padding: 0 20px;
+        background: #fff;
+        border-radius: 10px;
+        border: 1px solid var(--zd-border);
+        font-size: 19px;
+        color: var(--zd-text);
+      }
+      .play {
+        width: 0;
+        height: 0;
+        border-left: 16px solid #39464d;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+      }
+      .wave {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        height: 40px;
+      }
+      .wave span {
+        display: block;
+        width: 4px;
+        border-radius: 2px;
+        background: #b7c0c5;
+      }
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #5c6970;
+        font-size: 22px;
+        font-weight: 700;
+        position: relative;
+      }
+      /* Extension UI (same look as the real one) */
+      .xt-menu {
+        position: absolute;
+        width: 300px;
+        padding: 10px 0;
+        background: #fff;
+        border: 1px solid var(--zd-border);
+        border-radius: 7px;
+        box-shadow: 0 18px 36px rgba(4, 68, 77, 0.18);
+        font-size: 20px;
+        color: var(--zd-text);
+      }
+      .xt-menu div {
+        padding: 12px 22px;
+      }
+      .xt-menu .off {
+        color: #c2c8cc;
+      }
+      .xt-panel {
+        position: absolute;
+        width: 640px;
+        background: rgba(255, 255, 255, 0.97);
+        border: 1px solid var(--zd-border);
+        border-radius: 12px;
+        box-shadow: 0 10px 28px rgba(4, 68, 77, 0.16);
+        color: var(--zd-text);
+      }
+      .xt-head {
+        display: flex;
+        justify-content: space-between;
+        padding: 18px 22px 6px 26px;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--zd-muted);
+      }
+      .xt-head em {
+        font-style: normal;
+        font-weight: 400;
+        color: #6e7780;
+      }
+      .xt-body {
+        position: relative;
+        padding: 8px 26px 16px;
+        min-height: 150px;
+        font-size: 22px;
+        line-height: 1.5;
+      }
+      .xt-status {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--zd-muted);
+        font-size: 20px;
+      }
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2.5px solid var(--zd-border);
+        border-top-color: var(--zd-blue);
+        display: block;
+      }
+      .progress {
+        margin-top: 16px;
+        height: 7px;
+        border-radius: 4px;
+        background: rgba(92, 105, 112, 0.12);
+        overflow: hidden;
+      }
+      .progress i {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: var(--zd-blue);
+        transform-origin: left center;
+      }
+      .xt-foot {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        padding: 0 26px 20px;
+        font-size: 18px;
+      }
+      .xt-foot .link {
+        color: var(--zd-blue);
+      }
+      .xt-foot .spacer {
+        flex: 1;
+      }
+      .xt-foot .strong {
+        font-weight: 700;
+      }
+      .ok {
+        color: #037f4c;
+        font-weight: 600;
+      }
+      .ring {
+        position: absolute;
+        border: 4px solid var(--accent);
+        border-radius: 14px;
+        box-shadow:
+          0 0 0 8px rgba(24, 211, 148, 0.2),
+          0 0 30px rgba(24, 211, 148, 0.45);
+      }
+      .cursor {
+        position: absolute;
+        width: 36px;
+        height: 36px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 24px;
+        border-radius: 999px;
+        background: #fff;
+        box-shadow: 0 0 0 1px rgba(3, 54, 61, 0.1), 0 14px 30px -10px rgba(3, 54, 61, 0.3);
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--primary);
+      }
+      .chip i {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent);
+        display: block;
+      }
+      .check {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 26px;
+        color: var(--ink);
+      }
+      .check b {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(24, 211, 148, 0.2);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="58.41"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Ground + brand row for the whole film -->
+      <div id="ground" class="clip ground" data-start="0" data-duration="58.41" data-track-index="0"></div>
+      <div id="brandbar" class="clip" data-start="0" data-duration="50.74" data-track-index="1">
+        <div class="brand-row" id="brand-row">
+          <img src="assets/icon-128.png" alt="" />Transcrever Áudio para Zendesk
+        </div>
+      </div>
+
+      <!-- Narration -->
+      <audio id="vo-1" src="assets/01-problema.mp3" data-start="0.25" data-duration="5.84" data-track-index="20"></audio>
+      <audio id="vo-2" src="assets/02-instalacao.mp3" data-start="6.79" data-duration="7.92" data-track-index="20"></audio>
+      <audio id="vo-3" src="assets/03-solucao.mp3" data-start="15.41" data-duration="7.04" data-track-index="20"></audio>
+      <audio id="vo-4" src="assets/04-primeiro-uso.mp3" data-start="23.15" data-duration="8.96" data-track-index="20"></audio>
+      <audio id="vo-5" src="assets/05-texto.mp3" data-start="32.81" data-duration="3.28" data-track-index="20"></audio>
+      <audio id="vo-6" src="assets/06-acoes.mp3" data-start="36.79" data-duration="5.76" data-track-index="20"></audio>
+      <audio id="vo-7" src="assets/07-privacidade.mp3" data-start="43.25" data-duration="7.04" data-track-index="20"></audio>
+      <audio id="vo-8" src="assets/08-encerramento.mp3" data-start="50.99" data-duration="5.84" data-track-index="20"></audio>
+
+      <!-- 1 · Problema -->
+      <div id="s1" class="clip" data-start="0" data-duration="6.54" data-track-index="2">
+        <div class="copy" id="s1-copy">
+          <span class="kicker"><i></i>Atendimento por WhatsApp</span>
+          <h1 class="headline"><span>Mais um áudio</span><span class="em">no WhatsApp…</span></h1>
+          <p class="sub">E você, no meio do expediente, sem fone.</p>
+        </div>
+        <div class="card" id="s1-stack" style="left: 860px; top: 230px; width: 900px; padding: 40px">
+          <div class="bubble" id="s1-b1">
+            <div class="label"><b></b>Gravação de WhatsApp</div>
+            <div class="player"><div class="bar"><span class="play"></span>0:00 / 0:42<div class="wave w1"></div>1x</div></div>
+          </div>
+          <div class="bubble" id="s1-b2" style="margin-top: 24px">
+            <div class="label"><b></b>Gravação de WhatsApp</div>
+            <div class="player"><div class="bar"><span class="play"></span>0:00 / 1:15<div class="wave w2"></div>1x</div></div>
+          </div>
+          <div class="bubble" id="s1-b3" style="margin-top: 24px">
+            <div class="label"><b></b>Gravação de WhatsApp</div>
+            <div class="player"><div class="bar"><span class="play"></span>0:00 / 0:58<div class="wave w3"></div>1x</div></div>
+          </div>
+        </div>
+        <div id="s1-nophones" style="position: absolute; left: 1610px; top: 150px; width: 170px; height: 170px; border-radius: 50%; background: #fff; box-shadow: 0 20px 40px -12px rgba(3, 54, 61, 0.35)">
+          <svg viewBox="0 0 64 64" width="170" height="170" fill="none" stroke="#03363d" stroke-width="4" stroke-linecap="round">
+            <path d="M18 38v-6a14 14 0 0 1 28 0v6" />
+            <rect x="14" y="36" width="9" height="14" rx="3" />
+            <rect x="41" y="36" width="9" height="14" rx="3" />
+            <path d="M14 14l36 36" stroke="#cd3642" />
+          </svg>
+        </div>
+        <div class="subtitle"><p>Seu cliente mandou mais um áudio no WhatsApp. E você, no meio do expediente, sem fone.</p></div>
+      </div>
+
+      <!-- 2 · Instalação -->
+      <div id="s2" class="clip" data-start="6.54" data-duration="8.62" data-track-index="2">
+        <div class="copy" id="s2-copy">
+          <span class="kicker"><i></i>Instalação</span>
+          <h1 class="headline"><span>Instale em</span><span class="em">um clique</span></h1>
+          <p class="sub">Pela Chrome Web Store. Sem configurar nada.</p>
+        </div>
+        <div class="card" id="s2-store" style="left: 860px; top: 260px; width: 900px; height: 420px; padding: 48px">
+          <div style="font-size: 20px; font-weight: 600; color: var(--zd-muted)">Chrome Web Store</div>
+          <div style="display: flex; gap: 32px; align-items: center; margin-top: 34px">
+            <img src="assets/icon-128.png" alt="" style="width: 128px; height: 128px; display: block" />
+            <div>
+              <div style="font-size: 38px; font-weight: 800; letter-spacing: -0.02em">Transcrever Áudio para Zendesk</div>
+              <div style="font-size: 22px; color: var(--zd-muted); margin-top: 8px">ATVEZA · Produtividade</div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; margin-top: 54px; position: relative; height: 70px">
+            <div id="s2-btn" style="position: absolute; right: 0; top: 0; padding: 20px 36px; border-radius: 999px; background: var(--zd-blue); color: #fff; font-size: 24px; font-weight: 600">Usar no Chrome</div>
+            <div id="s2-done" style="position: absolute; right: 0; top: 0; padding: 20px 36px; border-radius: 999px; background: #037f4c; color: #fff; font-size: 24px; font-weight: 600; opacity: 0">✓ Adicionada ao Chrome</div>
+          </div>
+        </div>
+        <div id="s2-chips" style="position: absolute; left: 860px; top: 740px; display: flex; gap: 20px">
+          <span class="chip" id="s2-chip1"><i></i>Sem configuração</span>
+          <span class="chip" id="s2-chip2"><i></i>Funciona em qualquer conta do Zendesk</span>
+        </div>
+        <svg class="cursor" id="s2-cursor" viewBox="0 0 24 24" style="left: 1500px; top: 760px"><path d="M4 2l16 10-7 1.5L9.5 21z" fill="#07110d" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" /></svg>
+        <div class="subtitle"><p>Para começar, é só instalar a extensão pela Chrome Web Store. Não precisa configurar nada: ela já funciona no seu Zendesk.</p></div>
+      </div>
+
+      <!-- 3-6 · Ticket stage (continuous) -->
+      <div id="stage" class="clip" data-start="15.16" data-duration="27.84" data-track-index="3">
+        <div class="card" id="ticket" style="left: 800px; top: 200px; width: 1000px; height: 600px; overflow: hidden">
+          <div style="padding: 26px 36px; border-bottom: 1px solid var(--zd-border); font-size: 24px; font-weight: 700; color: var(--zd-text)">Conversa com Cliente · <span style="font-weight: 400; color: var(--zd-muted)">via WhatsApp</span></div>
+          <div style="padding: 30px 36px">
+            <div style="display: flex; align-items: center; gap: 14px; font-size: 20px; font-weight: 700; color: var(--zd-text)">
+              <span style="width: 44px; height: 44px; border-radius: 50%; background: #d8e8e8; display: block"></span>Cliente <span style="font-weight: 400; color: var(--zd-muted)">· há 2 minutos</span>
+            </div>
+            <div class="bubble" style="margin: 16px 0 0 58px; width: 820px">
+              <div class="label"><b></b>Gravação de WhatsApp</div>
+              <div class="player">
+                <div class="bar"><span class="play"></span>0:00 / 0:12<div class="wave w4"></div>1x</div>
+                <span class="icon-btn" style="font-size: 26px">↓</span>
+                <span class="icon-btn" id="dots">•••<i id="dots-dot" style="position: absolute; right: 6px; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--zd-blue); opacity: 0; display: block"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ring" id="ring-dots" style="left: 1696px; top: 400px; width: 56px; height: 56px; border-radius: 50%; opacity: 0"></div>
+        <div class="xt-menu" id="menu" style="left: 1430px; top: 470px; opacity: 0">
+          <div id="menu-transcribe">Transcrever</div>
+          <div class="off">Copiar transcrição</div>
+          <div class="off">Salvar como nota interna</div>
+        </div>
+        <div class="xt-panel" id="panel" style="left: 1004px; top: 470px; opacity: 0">
+          <div class="xt-head"><span>Transcrição <em>· Cliente · 0:12 ⓘ</em></span><span>✕</span></div>
+          <div class="xt-body">
+            <div class="xt-status" id="st-read"><span class="spinner sp"></span>Lendo o áudio</div>
+            <div id="st-dl" style="position: absolute; left: 26px; right: 26px; top: 8px; opacity: 0">
+              <div class="xt-status"><span class="spinner sp"></span><span>Preparando a transcrição (só na primeira vez)</span></div>
+              <div class="progress"><i id="bar"></i></div>
+              <div style="margin-top: 10px; text-align: right; font-size: 18px; color: var(--zd-muted)"><b id="mb">0</b> MB de 566 MB</div>
+            </div>
+            <div id="st-text" style="position: absolute; left: 26px; right: 26px; top: 8px; opacity: 0">
+              <p id="transcript"></p>
+            </div>
+          </div>
+          <div class="xt-foot" id="foot" style="opacity: 0">
+            <span class="link" id="f-copy">Copiar</span><span class="link">Transcrever de novo</span><span class="spacer"></span>
+            <span class="link strong" id="f-save">Salvar como nota interna</span>
+            <span class="ok" id="f-saved" style="position: absolute; right: 26px; opacity: 0">✓ Salva no ticket</span>
+          </div>
+        </div>
+        <svg class="cursor" id="cursor" viewBox="0 0 24 24" style="left: 1500px; top: 820px"><path d="M4 2l16 10-7 1.5L9.5 21z" fill="#07110d" stroke="#fff" stroke-width="1.5" stroke-linejoin="round" /></svg>
+      </div>
+
+      <!-- Left copy for scenes 3-6 -->
+      <div id="s3" class="clip" data-start="15.16" data-duration="7.74" data-track-index="4">
+        <div class="copy" id="s3-copy">
+          <span class="kicker"><i></i>No próprio ticket</span>
+          <h1 class="headline"><span>Clique no •••</span><span class="em">e Transcrever</span></h1>
+          <p class="sub">Um botão novo ao lado do áudio, no player do Zendesk.</p>
+        </div>
+        <div class="subtitle"><p>Com o Transcrever Áudio para Zendesk, é só clicar nos três pontinhos ao lado do áudio e escolher Transcrever.</p></div>
+      </div>
+      <div id="s4" class="clip" data-start="22.9" data-duration="9.66" data-track-index="4">
+        <div class="copy" id="s4-copy">
+          <span class="kicker"><i></i>Primeiro uso</span>
+          <h1 class="headline"><span>O modelo de IA</span><span class="em">baixa uma vez só</span></h1>
+          <p class="sub">Depois ele fica guardado no seu navegador.</p>
+        </div>
+        <div class="subtitle"><p>Na primeira vez, a extensão baixa o modelo de inteligência artificial. Isso acontece uma vez só: depois, ele fica guardado no seu navegador.</p></div>
+      </div>
+      <div id="s5" class="clip" data-start="32.56" data-duration="3.98" data-track-index="4">
+        <div class="copy" id="s5-copy">
+          <span class="kicker"><i></i>Áudio → texto</span>
+          <h1 class="headline"><span>O texto aparece</span><span class="em">em segundos</span></h1>
+        </div>
+        <div class="subtitle"><p>Em segundos, o texto aparece ali mesmo, no ticket.</p></div>
+      </div>
+      <div id="s6" class="clip" data-start="36.54" data-duration="6.46" data-track-index="4">
+        <div class="copy" id="s6-copy">
+          <span class="kicker"><i></i>No seu ritmo</span>
+          <h1 class="headline"><span>Copie, salve</span><span class="em">ou mova a caixa</span></h1>
+          <p class="sub">A nota interna fica privada: o cliente não vê.</p>
+        </div>
+        <div class="subtitle"><p>Copie, salve como nota interna com um clique, ou arraste a caixa para onde for melhor.</p></div>
+      </div>
+
+      <!-- 7 · Privacidade -->
+      <div id="s7" class="clip" data-start="43" data-duration="7.74" data-track-index="2">
+        <div class="copy" id="s7-copy">
+          <span class="kicker"><i></i>Privacidade por padrão</span>
+          <h1 class="headline"><span>A IA roda no</span><span class="em">seu computador</span></h1>
+          <p class="sub">O áudio do cliente não sai da sua máquina.</p>
+        </div>
+        <div id="s7-box" style="position: absolute; left: 840px; top: 250px; width: 960px; height: 560px; border-radius: 30px; border: 3px dashed rgba(3, 54, 61, 0.35); background: rgba(255, 255, 255, 0.55)">
+          <span class="chip" id="s7-label" style="position: absolute; left: 36px; top: -30px; background: var(--primary); color: #fff"><i></i>Seu computador</span>
+          <div class="card" id="s7-audio" style="left: 70px; top: 110px; width: 290px; height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px">
+            <div class="wave w5" style="flex: none; width: 210px"></div>
+            <span style="font-size: 20px; font-weight: 600; color: var(--muted)">Áudio do cliente</span>
+          </div>
+          <div id="s7-arrow" style="position: absolute; left: 380px; top: 190px; width: 200px; height: 5px; border-radius: 3px; background: linear-gradient(90deg, #03363d, #18d394); transform-origin: left center"></div>
+          <div id="s7-ai" style="position: absolute; left: 380px; top: 214px; width: 200px; text-align: center; font-size: 20px; font-weight: 700; color: var(--primary)">IA local · Whisper</div>
+          <div class="card" id="s7-text" style="left: 600px; top: 110px; width: 290px; height: 170px; padding: 34px 30px; display: flex; flex-direction: column; gap: 16px">
+            <span style="display: block; height: 12px; width: 92%; border-radius: 6px; background: rgba(3, 54, 61, 0.22)"></span>
+            <span style="display: block; height: 12px; width: 74%; border-radius: 6px; background: rgba(3, 54, 61, 0.22)"></span>
+            <span style="display: block; height: 12px; width: 84%; border-radius: 6px; background: rgba(3, 54, 61, 0.22)"></span>
+          </div>
+          <div style="position: absolute; left: 70px; top: 340px; display: grid; grid-template-columns: 1fr 1fr; gap: 26px 40px; width: 820px">
+            <div class="check" id="s7-c1"><b>✓</b>O áudio não sai da máquina</div>
+            <div class="check" id="s7-c2"><b>✓</b>Sem custo por transcrição</div>
+            <div class="check" id="s7-c3"><b>✓</b>Sem telemetria</div>
+            <div class="check" id="s7-c4"><b>✓</b>Nota interna sempre privada</div>
+          </div>
+        </div>
+        <div class="subtitle"><p>E o melhor: a inteligência artificial roda no seu computador. O áudio do cliente não sai da sua máquina.</p></div>
+      </div>
+
+      <!-- 8 · Encerramento -->
+      <div id="s8" class="clip" data-start="50.74" data-duration="7.67" data-track-index="2">
+        <div id="s8-center" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px">
+          <img id="s8-mark" src="assets/icon-128.png" alt="" style="width: 260px; height: 260px; display: block" />
+          <div id="s8-title" style="font-size: 84px; font-weight: 800; letter-spacing: -0.03em; text-align: center">Transcrever Áudio <span style="color: var(--primary)">para Zendesk</span></div>
+          <div id="s8-brand" style="display: flex; align-items: center; gap: 14px; font-size: 32px; font-weight: 600; color: var(--primary)">
+            <i style="width: 14px; height: 14px; border-radius: 50%; background: var(--accent); display: block"></i>Uma solução ATVEZA · consultor.cx
+          </div>
+          <span class="chip" id="s8-store"><i></i>Disponível na Chrome Web Store</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Deterministic waveforms.
+      const waves = {
+        w1: [10, 20, 32, 18, 26, 36, 22, 14, 30, 38, 24, 16, 34, 26, 12, 28, 20, 10, 24, 32, 18, 28],
+        w2: [14, 28, 20, 36, 22, 30, 16, 38, 26, 12, 32, 24, 18, 34, 22, 28, 14, 30, 20, 36, 16, 24],
+        w3: [12, 24, 34, 20, 28, 16, 36, 24, 14, 30, 22, 38, 18, 26, 32, 14, 28, 22, 34, 18, 26, 12],
+        w4: [10, 22, 34, 18, 28, 38, 24, 14, 32, 26, 16, 36, 20, 30, 12, 28, 22, 34, 16, 24, 30, 14],
+        w5: [14, 30, 44, 24, 36, 50, 30, 18, 42, 52, 30, 20, 46, 32, 16, 38, 26, 12],
+      };
+      for (const [cls, bars] of Object.entries(waves)) {
+        document.querySelectorAll('.' + cls).forEach((el) => {
+          for (const h of bars) {
+            const s = document.createElement('span');
+            s.style.height = h + 'px';
+            if (cls === 'w5') {
+              s.style.background = '#03363d';
+              s.style.width = '6px';
+            }
+            el.appendChild(s);
+          }
+        });
+      }
+
+      // Transcript words for the streaming reveal.
+      const text =
+        'Bom dia! Estou com um problema na licença do EDGECAM. Desde ontem aparece uma mensagem dizendo que o dongle não foi encontrado. Consegue me ajudar?';
+      const tp = document.getElementById('transcript');
+      text.split(' ').forEach((w, i) => {
+        const s = document.createElement('span');
+        s.className = 'tw';
+        s.textContent = (i ? ' ' : '') + w;
+        tp.appendChild(s);
+      });
+
+      const tl = gsap.timeline({ paused: true });
+      const E = 'power3.out';
+      const copyIn = (id, t) =>
+        tl.fromTo(`#${id} > *`, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, stagger: 0.12, ease: E }, t);
+      const subIn = (sid, t) => tl.fromTo(`#${sid} .subtitle p`, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E }, t);
+      const copyOut = (id, t) => tl.to(`#${id}`, { opacity: 0, y: -16, duration: 0.35, ease: 'power2.in' }, t);
+      const click = (sel, t) => tl.fromTo(sel, { scale: 1 }, { scale: 0.85, duration: 0.1, yoyo: true, repeat: 1, ease: 'power1.inOut' }, t);
+
+      // Frame 0 already shows the brand and the scene 1 title (thumbnail on players).
+
+      // 1 · Problema (title already on screen at 0 s)
+      subIn('s1', 0.3);
+      tl.fromTo('#s1-stack', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: E }, 0.3);
+      tl.fromTo(['#s1-b1', '#s1-b2', '#s1-b3'], { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.55, ease: E }, 0.6);
+      tl.fromTo('#s1-nophones', { opacity: 0, scale: 0.4, rotation: -20 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.6, ease: 'back.out(1.8)' }, 3.6);
+      copyOut('s1-copy', 6.15);
+      tl.to(['#s1-stack', '#s1-nophones'], { opacity: 0, y: -20, duration: 0.35, ease: 'power2.in' }, 6.15);
+
+      // 2 · Instalação
+      copyIn('s2-copy', 6.6);
+      subIn('s2', 6.7);
+      tl.fromTo('#s2-store', { opacity: 0, y: 40, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: E }, 6.7);
+      tl.fromTo('#s2-cursor', { x: 0, y: 0, opacity: 0 }, { opacity: 1, duration: 0.3 }, 7.6);
+      tl.to('#s2-cursor', { x: 120, y: -150, duration: 1.0, ease: 'power2.inOut' }, 7.9);
+      click('#s2-btn', 9.0);
+      tl.to('#s2-btn', { opacity: 0, duration: 0.25 }, 9.25);
+      tl.fromTo('#s2-done', { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' }, 9.25);
+      tl.to('#s2-cursor', { opacity: 0, duration: 0.3 }, 10.2);
+      tl.fromTo('#s2-chip1', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 11.0);
+      tl.fromTo('#s2-chip2', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 12.6);
+      copyOut('s2-copy', 14.75);
+      tl.to(['#s2-store', '#s2-chips'], { opacity: 0, y: -20, duration: 0.35, ease: 'power2.in' }, 14.75);
+
+      // 3 · Clique no ⋯ e Transcrever
+      copyIn('s3-copy', 15.25);
+      subIn('s3', 15.3);
+      tl.fromTo('#ticket', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: E }, 15.3);
+      tl.fromTo('#cursor', { x: 0, y: 0, opacity: 0 }, { opacity: 1, duration: 0.3 }, 16.4);
+      tl.to('#cursor', { x: 210, y: -390, duration: 1.1, ease: 'power2.inOut' }, 16.6);
+      tl.fromTo('#ring-dots', { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(2)' }, 17.6);
+      click('#dots', 18.0);
+      tl.fromTo('#menu', { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.3, ease: E }, 18.25);
+      tl.to('#ring-dots', { opacity: 0, duration: 0.3 }, 18.6);
+      tl.to('#cursor', { x: 10, y: -315, duration: 0.8, ease: 'power2.inOut' }, 19.0);
+      tl.to('#menu-transcribe', { backgroundColor: 'rgba(31,115,183,0.1)', duration: 0.2 }, 19.6);
+      click('#menu-transcribe', 20.0);
+      tl.to('#menu', { opacity: 0, duration: 0.2 }, 20.3);
+      tl.fromTo('#panel', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 20.35);
+      tl.to('#cursor', { x: 330, y: -160, opacity: 0, duration: 0.8, ease: 'power2.inOut' }, 20.6);
+      tl.fromTo('.sp', { rotation: 0 }, { rotation: 360 * 30, duration: 15, ease: 'none' }, 20.35);
+      copyOut('s3-copy', 22.5);
+
+      // 4 · Primeiro uso: one-time model download
+      copyIn('s4-copy', 23.0);
+      subIn('s4', 23.05);
+      tl.to('#st-read', { opacity: 0, duration: 0.25 }, 23.0);
+      tl.to('#st-dl', { opacity: 1, duration: 0.3 }, 23.2);
+      const mb = { v: 0 };
+      tl.fromTo('#bar', { scaleX: 0 }, { scaleX: 1, duration: 7.4, ease: 'power1.inOut' }, 23.3);
+      tl.to(mb, { v: 566, duration: 7.4, ease: 'power1.inOut', onUpdate: () => { document.getElementById('mb').textContent = Math.round(mb.v); } }, 23.3);
+      copyOut('s4-copy', 32.15);
+
+      // 5 · Texto aparece
+      copyIn('s5-copy', 32.65);
+      subIn('s5', 32.7);
+      tl.to('#st-dl', { opacity: 0, duration: 0.25 }, 31.2);
+      tl.to('#st-text', { opacity: 1, duration: 0.01 }, 31.5);
+      tl.fromTo('.tw', { opacity: 0 }, { opacity: 1, duration: 0.05, stagger: 0.17, ease: 'none' }, 31.5);
+      tl.to('#foot', { opacity: 1, duration: 0.4 }, 35.9);
+      tl.to('#dots-dot', { opacity: 1, duration: 0.3 }, 35.9);
+      copyOut('s5-copy', 36.15);
+
+      // 6 · Copiar, salvar, mover
+      copyIn('s6-copy', 36.6);
+      subIn('s6', 36.65);
+      tl.set('#cursor', { x: 0, y: 0 }, 36.6);
+      tl.to('#cursor', { opacity: 1, x: -460, y: -120, duration: 0.9, ease: 'power2.inOut' }, 36.7);
+      click('#f-copy', 37.7);
+      tl.call(() => {}, [], 37.8);
+      tl.fromTo('#f-copy', { color: '#1f73b7' }, { color: '#037f4c', duration: 0.2 }, 37.8);
+      tl.to('#cursor', { x: -40, y: -120, duration: 0.8, ease: 'power2.inOut' }, 38.3);
+      click('#f-save', 39.2);
+      tl.to('#f-save', { opacity: 0, duration: 0.2 }, 39.4);
+      tl.to('#f-saved', { opacity: 1, duration: 0.3 }, 39.5);
+      // drag the box by its header
+      tl.to('#cursor', { x: -500, y: -400, duration: 0.7, ease: 'power2.inOut' }, 40.1);
+      tl.to(['#panel', '#cursor'], { x: '-=380', y: '+=110', duration: 1.2, ease: 'power2.inOut' }, 40.9);
+      tl.to('#cursor', { opacity: 0, duration: 0.3 }, 42.2);
+      copyOut('s6-copy', 42.6);
+      tl.to('#stage', { opacity: 0, duration: 0.01 }, 43.0);
+
+      // 7 · Privacidade
+      copyIn('s7-copy', 43.1);
+      subIn('s7', 43.2);
+      tl.fromTo('#s7-box', { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.6, ease: E }, 43.3);
+      tl.fromTo('#s7-label', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 43.7);
+      tl.fromTo('#s7-audio', { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, ease: E }, 44.1);
+      tl.fromTo('#s7-arrow', { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: 'power2.inOut' }, 44.8);
+      tl.fromTo('#s7-ai', { opacity: 0 }, { opacity: 1, duration: 0.4 }, 45.3);
+      tl.fromTo('#s7-text', { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.5, ease: E }, 45.6);
+      tl.fromTo(['#s7-c1', '#s7-c2', '#s7-c3', '#s7-c4'], { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, stagger: 0.5, ease: E }, 46.6);
+      copyOut('s7-copy', 50.35);
+      tl.to('#s7-box', { opacity: 0, duration: 0.35 }, 50.35);
+      tl.to('#brand-row', { opacity: 0, duration: 0.35 }, 50.35);
+
+      // 8 · Encerramento
+      tl.fromTo('#s8-mark', { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.6)' }, 50.85);
+      tl.fromTo('#s8-title', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: E }, 51.3);
+      tl.fromTo('#s8-brand', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: E }, 52.4);
+      tl.fromTo('#s8-store', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: E }, 54.0);
+
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

@@ -14,3 +14,6 @@ playwright-report/
 .output-e2e/
 .output-*/
 publicacao/
+video/promo/.hyperframes/
+video/promo/renders/
+video/promo/node_modules/
