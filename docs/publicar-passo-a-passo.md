@@ -4,12 +4,12 @@ O Chrome não deixa extensões nem navegadores automatizados mexerem nas página
 
 **Arquivos:** pasta `publicacao/` na raiz do projeto (gerada por `npm run store:assets`):
 
-| Arquivo                                                      | Onde usar                         |
-| ------------------------------------------------------------ | --------------------------------- |
-| `zendesk-whatsapp-audio-transcriber-public-0.3.0-chrome.zip` | Novo item → enviar pacote         |
-| `icone-128.png`                                              | Ficha → Ícone da loja             |
-| `captura-1-transcricao.png`, `captura-2-menu.png`            | Ficha → Capturas de tela          |
-| `promo-440x280.png`                                          | Ficha → Bloco promocional pequeno |
+| Arquivo                                                                        | Onde usar                         |
+| ------------------------------------------------------------------------------ | --------------------------------- |
+| `zendesk-whatsapp-audio-transcriber-public-0.3.0-chrome.zip`                   | Novo item → enviar pacote         |
+| `icone-128.png`                                                                | Ficha → Ícone da loja             |
+| `captura-1-transcricao.png`, `captura-2-menu.png`, `captura-3-privacidade.png` | Ficha → Capturas de tela          |
+| `promo-440x280.png`                                                            | Ficha → Bloco promocional pequeno |
 
 ## 1. Conta (menu à esquerda → Conta)
 
@@ -48,7 +48,7 @@ Itens → **+ Novo item** → enviar `zendesk-whatsapp-audio-transcriber-public-
 - **Categoria:** Produtividade → Fluxo de trabalho e planejamento
 - **Idioma:** Português (Brasil)
 - **Ícone da loja:** `icone-128.png`
-- **Capturas de tela:** `captura-1-transcricao.png` e `captura-2-menu.png`
+- **Capturas de tela:** `captura-1-transcricao.png`, `captura-2-menu.png` e `captura-3-privacidade.png` (nessa ordem)
 - **Bloco promocional pequeno:** `promo-440x280.png`
 - **Site oficial:** `https://consultor.cx`
 - **Suporte:** `mailto:athos@atveza.com`
