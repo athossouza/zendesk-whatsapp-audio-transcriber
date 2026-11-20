@@ -6,16 +6,16 @@
 
 ## Checklist antes de começar
 
-| #   | Item                                                                                       | Responsável  | Como                                                |
-| --- | ------------------------------------------------------------------------------------------ | ------------ | --------------------------------------------------- |
-| 1   | Escolher os 2 agentes do piloto (um com o computador mais modesto da equipe)               | SKA          | —                                                   |
-| 2   | Rodar a bancada num computador típico de agente (ver abaixo)                               | SKA + ATVEZA | 20 min por máquina                                  |
-| 3   | Confirmar que a rede libera `huggingface.co` e `*.hf.co`                                   | TI da SKA    | Abrir https://huggingface.co no navegador do agente |
-| 4   | Juntar os 20 áudios de teste com as transcrições corretas (ver abaixo)                     | SKA          | Com autorização                                     |
-| 5   | Aprovar o texto para o DPO                                                                 | DPO da SKA   | `docs/lgpd-dpo.md`                                  |
-| 6   | Publicar a política de privacidade                                                         | ATVEZA       | `docs/politica-de-privacidade.md`                   |
-| 7   | Publicar na Chrome Web Store como **privada**, com os 2 agentes como testadores confiáveis | ATVEZA       | `docs/chrome-web-store.md`                          |
-| 8   | Instalar nos 2 agentes e fazer o treinamento de 15 min                                     | ATVEZA       | Seção "Guia rápido do agente"                       |
+| #   | Item                                                                                                                        | Responsável  | Como                                                |
+| --- | --------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------- |
+| 1   | Escolher os 2 agentes do piloto (um com o computador mais modesto da equipe) e informar o e-mail da conta Google de cada um | SKA          | —                                                   |
+| 2   | Rodar a bancada num computador típico de agente (ver abaixo)                                                                | SKA + ATVEZA | 20 min por máquina                                  |
+| 3   | Confirmar que a rede libera `huggingface.co` e `*.hf.co`                                                                    | TI da SKA    | Abrir https://huggingface.co no navegador do agente |
+| 4   | Juntar os 20 áudios de teste com as transcrições corretas (ver abaixo)                                                      | SKA          | Com autorização                                     |
+| 5   | Aprovar o texto para o DPO                                                                                                  | DPO da SKA   | `docs/lgpd-dpo.md`                                  |
+| 6   | Publicar a seção da extensão em atveza.com/privacy/                                                                         | ATVEZA       | `docs/privacidade-secao-site.md`                    |
+| 7   | Publicar na Chrome Web Store como **privada**, com os 2 agentes como testadores confiáveis                                  | ATVEZA       | `docs/chrome-web-store.md`                          |
+| 8   | Instalar nos 2 agentes e fazer o treinamento de 15 min                                                                      | ATVEZA       | Seção "Guia rápido do agente"                       |
 
 Enquanto a loja não aprova, dá para começar com a instalação manual (modo desenvolvedor), descrita abaixo.
 
