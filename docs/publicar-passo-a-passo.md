@@ -50,6 +50,7 @@ Itens → **+ Novo item** → enviar `zendesk-whatsapp-audio-transcriber-public-
 - **Ícone da loja:** `icone-128.png`
 - **Capturas de tela:** `captura-1-transcricao.png`, `captura-2-menu.png` e `captura-3-privacidade.png` (nessa ordem)
 - **Bloco promocional pequeno:** `promo-440x280.png`
+- **Vídeo promocional global:** link do YouTube do `video-promocional.mp4` (pasta `publicacao/`), enviado ao canal ATVEZA Technology como não listado. Projeto do vídeo em `video/promo/` (HyperFrames).
 - **Site oficial:** `https://consultor.cx`
 - **Suporte:** `mailto:athos@atveza.com`
 - Salvar rascunho.

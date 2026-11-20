@@ -24,7 +24,7 @@
     "build:e2e": "CLIENT=public WXT_E2E=1 wxt build",
     "build:ska": "CLIENT=ska wxt build",
     "zip:ska": "CLIENT=ska wxt zip",
-    "store:assets": "npm run zip:store && rm -rf publicacao && mkdir -p publicacao && cp .output-public/*.zip publicacao/ && cp public/icons/128.png publicacao/icone-128.png && cp docs/store-assets/01-transcricao.png publicacao/captura-1-transcricao.png && cp docs/store-assets/02-menu.png publicacao/captura-2-menu.png && cp docs/store-assets/03-privacidade.png publicacao/captura-3-privacidade.png && cp docs/store-assets/promo-440x280.png publicacao/promo-440x280.png && test \"$(unzip -Z1 publicacao/*.zip | grep -c 'manifest.json$')\" = 1 || (echo 'ERRO: o pacote deve ter um único manifest.json' && exit 1)",
+    "store:assets": "npm run zip:store && rm -rf publicacao && mkdir -p publicacao && cp .output-public/*.zip publicacao/ && cp public/icons/128.png publicacao/icone-128.png && cp docs/store-assets/01-transcricao.png publicacao/captura-1-transcricao.png && cp docs/store-assets/02-menu.png publicacao/captura-2-menu.png && cp docs/store-assets/03-privacidade.png publicacao/captura-3-privacidade.png && cp docs/store-assets/promo-440x280.png publicacao/promo-440x280.png && (cp video/promo/renders/transcrever-audio-zendesk.mp4 publicacao/video-promocional.mp4 2>/dev/null || true) && test \"$(unzip -Z1 publicacao/*.zip | grep -c 'manifest.json$')\" = 1 || (echo 'ERRO: o pacote deve ter um único manifest.json' && exit 1)",
     "brand": "node scripts/render-brand.mjs && node scripts/render-screenshots.mjs",
     "build:store": "CLIENT=public wxt build",
     "zip:store": "CLIENT=public wxt zip"
