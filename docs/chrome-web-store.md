@@ -1,6 +1,23 @@
 # Chrome Web Store · ficha da extensão (piloto SKA)
 
-Tudo o que o formulário da loja pede, pronto para copiar. Publicar como **não listada**, na conta de desenvolvedor da ATVEZA.
+Tudo o que o formulário da loja pede, pronto para copiar, na conta de desenvolvedor da ATVEZA.
+
+## Conta de desenvolvedor (uma vez)
+
+Fonte: [Register your developer account](https://developer.chrome.com/docs/webstore/register) e [Set up your developer account](https://developer.chrome.com/docs/webstore/set-up-account) (Google).
+
+1. Escolher a conta Google que vai ser a dona da extensão. **O e-mail não pode ser trocado depois**; o Google recomenda um e-mail só para publicações, que alguém leia sempre.
+2. Abrir o [painel de desenvolvedor](https://chrome.google.com/webstore/devconsole), aceitar o contrato de desenvolvedor e pagar a **taxa única de registro** (US$ 5 desde 2020; confirmar o valor na tela).
+3. Em **Conta**: nome do editor "ATVEZA" (aparece em "Oferecido por"), verificar o e-mail de contato e, para o piloto, preencher **Contas de testadores confiáveis** com os e-mails Google dos agentes.
+
+## Publicação de teste (piloto)
+
+Fonte: [Set up distribution](https://developer.chrome.com/docs/webstore/cws-dashboard-distribution) (Google).
+
+- **Privada** limita a instalação às contas Google da lista de testadores confiáveis (ou a membros de um Google Group, configurado no item). É o modo indicado pelo Google para testes antes do lançamento.
+- **Todas as visibilidades passam pela mesma revisão.** Não existe modo de teste sem revisão na loja.
+- Os agentes instalam pelo link da loja, logados no Chrome com a conta Google cadastrada, e recebem as atualizações sozinhos.
+- Para a liberação geral, basta trocar para **Não listada** (qualquer pessoa com o link instala) ou, se a SKA usar Chrome gerenciado, o TI força a instalação pelo ID da extensão.
 
 ## Pacote
 
@@ -15,10 +32,10 @@ Tudo o que o formulário da loja pede, pronto para copiar. Publicar como **não 
 | Resumo (até 132 caracteres) | Transcreve os áudios de WhatsApp dos tickets do Zendesk direto no seu computador, sem enviar o áudio para fora. |
 | Categoria                   | Produtividade → Fluxo de trabalho e planejamento                                                                |
 | Idioma                      | Português (Brasil)                                                                                              |
-| Visibilidade                | Não listada                                                                                                     |
+| Visibilidade                | **Privada** (só testadores confiáveis) no piloto; **Não listada** na liberação para toda a SKA                  |
 | Ícone                       | `public/icons/128.png`                                                                                          |
 | Capturas de tela            | 1280 × 800 px, de 1 a 5 (ver `docs/store-assets/`)                                                              |
-| Política de privacidade     | URL pública com o conteúdo de `docs/politica-de-privacidade.md` (ex.: consultor.cx/privacidade-transcricao)     |
+| Política de privacidade     | https://atveza.com/privacy/ (seção "Transcrever Áudio para Zendesk", texto em `docs/privacidade-secao-site.md`) |
 
 ### Descrição
 
@@ -67,7 +84,7 @@ Marcar também as três certificações: não vende dados, não usa para fins n�
 
 ## Antes de enviar
 
-- [ ] Política de privacidade publicada numa URL pública, com o e-mail de contato confirmado.
+- [ ] Seção da extensão publicada em https://atveza.com/privacy/ (contato: athos@atveza.com).
 - [x] Capturas de tela aprovadas por Athos em 19/11/2026 (ticket de teste, sem dados de clientes reais).
 - [ ] `npm run check` e `npm run test:e2e` passando.
 - [ ] Teste manual da versão SKA em pdi-atveza (carregar `.output-ska/chrome-mv3` sem compactação).
