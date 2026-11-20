@@ -22,13 +22,12 @@ Privacidade: a inteligência artificial roda no computador do agente. O áudio d
 
 Na primeira vez, a extensão baixa o modelo de IA uma única vez; depois ele fica guardado no navegador.
 
-Instale pela Chrome Web Store: <link da extensão>
+Instale pela Chrome Web Store: https://chromewebstore.google.com/detail/fppeheopbmnnoagoekmllmmohfdncfdf
 Política de privacidade: https://consultor.cx/politica-de-privacidade#transcrever-audio-zendesk
 
 Uma solução ATVEZA · https://consultor.cx
 ```
 
-Trocar `<link da extensão>` pelo link da Chrome Web Store quando a extensão for aprovada. Enquanto isso, remover a linha.
 
 ## Configurações
 

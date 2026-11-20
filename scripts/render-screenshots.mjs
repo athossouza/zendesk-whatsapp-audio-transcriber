@@ -8,6 +8,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { chromium } from '@playwright/test';
+import { panelMock, RAW_PANEL } from './panel-mock.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const dataUrl = (path, type) =>
@@ -82,8 +83,10 @@ const shots = [];
 {
   const crop = { x: 340, y: 268, w: 670, h: 480 };
   const s = 1.1;
+  // Realistic support message drawn over the test capture's box (same look as the extension).
+  const panel = panelMock({ left: (RAW_PANEL.x - crop.x) * s, top: (RAW_PANEL.y - crop.y) * s, scale: s });
   const ring = `<div class="ring" style="${at(crop, s, 428, 426, 468, 314)}"></div>`;
-  const card = shotCard(RAW.transcricao, crop, s, 510, 112, ring);
+  const card = shotCard(RAW.transcricao, crop, s, 510, 112, panel + ring);
   const label = `<div class="label" style="left:830px;top:84px"><i></i>Transcrição no próprio ticket</div>`;
   shots.push([
     '01-transcricao',

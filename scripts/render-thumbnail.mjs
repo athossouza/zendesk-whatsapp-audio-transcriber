@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { chromium } from '@playwright/test';
+import { panelMock, RAW_PANEL } from './panel-mock.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const b64 = (p) => readFileSync(resolve(root, p)).toString('base64');
@@ -29,7 +30,7 @@ box-shadow:0 0 0 4px #18D394,0 0 0 12px rgba(24,211,148,.22),0 40px 80px -20px r
 <div class="brand"><img src="${ICON}">ATVEZA · consultor.cx</div>
 <h1><span>Áudio do</span><span>WhatsApp</span><span class="em">vira texto</span></h1>
 <div class="pill"><i></i>Direto no Zendesk</div>
-<div class="card"></div></div>`;
+<div class="card">${panelMock({ left: (RAW_PANEL.x - crop.x) * s, top: (RAW_PANEL.y - crop.y) * s, scale: s })}</div></div>`;
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
