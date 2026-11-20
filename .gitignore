@@ -13,3 +13,4 @@ test-results/
 playwright-report/
 .output-e2e/
 .output-*/
+publicacao/
