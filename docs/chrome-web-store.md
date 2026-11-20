@@ -26,16 +26,16 @@ Fonte: [Set up distribution](https://developer.chrome.com/docs/webstore/cws-dash
 
 ## Ficha
 
-| Campo                       | Valor                                                                                                                            |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Nome                        | ATVEZA · Transcrever Áudio para Zendesk                                                                                          |
-| Resumo (até 132 caracteres) | Transcreve os áudios de WhatsApp dos tickets do Zendesk direto no seu computador, sem enviar o áudio para fora.                  |
-| Categoria                   | Produtividade → Fluxo de trabalho e planejamento                                                                                 |
-| Idioma                      | Português (Brasil)                                                                                                               |
-| Visibilidade                | **Privada** (só testadores confiáveis) no piloto; **Não listada** na liberação para toda a SKA                                   |
-| Ícone                       | `public/icons/128.png` (marca ATVEZA do rodapé do consultor.cx + símbolo da Zendesk no canto; `npm run brand`)                   |
-| Capturas de tela            | 1280 × 800 px, de 1 a 5 (ver `docs/store-assets/`)                                                                               |
-| Política de privacidade     | https://consultor.cx/politica-de-privacidade (seção "Transcrever Áudio para Zendesk", texto em `docs/privacidade-secao-site.md`) |
+| Campo                       | Valor                                                                                                                                                      |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nome                        | ATVEZA · Transcrever Áudio para Zendesk                                                                                                                    |
+| Resumo (até 132 caracteres) | Transcreve os áudios de WhatsApp dos tickets do Zendesk direto no seu computador, sem enviar o áudio para fora.                                            |
+| Categoria                   | Produtividade → Fluxo de trabalho e planejamento                                                                                                           |
+| Idioma                      | Português (Brasil)                                                                                                                                         |
+| Visibilidade                | **Privada** (só testadores confiáveis) no piloto; **Não listada** na liberação para toda a SKA                                                             |
+| Ícone                       | `public/icons/128.png` (marca ATVEZA do rodapé do consultor.cx + símbolo da Zendesk no canto; `npm run brand`)                                             |
+| Capturas de tela            | 1280 × 800 px, de 1 a 5 (ver `docs/store-assets/`)                                                                                                         |
+| Política de privacidade     | https://consultor.cx/politica-de-privacidade#transcrever-audio-zendesk (seção "Transcrever Áudio para Zendesk", texto em `docs/privacidade-secao-site.md`) |
 
 ### Descrição
 
@@ -84,7 +84,7 @@ Marcar também as três certificações: não vende dados, não usa para fins n�
 
 ## Antes de enviar
 
-- [ ] Seção da extensão publicada em https://consultor.cx/politica-de-privacidade (contato: athos@atveza.com).
+- [x] Seção da extensão publicada em https://consultor.cx/politica-de-privacidade#transcrever-audio-zendesk (conferida no ar em 19/11/2026).
 - [x] Capturas de tela aprovadas por Athos em 19/11/2026 (ticket de teste, sem dados de clientes reais).
 - [ ] `npm run check` e `npm run test:e2e` passando.
 - [ ] Teste manual da versão SKA em pdi-atveza (carregar `.output-ska/chrome-mv3` sem compactação).

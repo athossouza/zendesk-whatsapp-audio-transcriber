@@ -88,10 +88,10 @@ Itens → **+ Novo item** → enviar `zendesk-whatsapp-audio-transcriber-ska-0.2
 - **URL da política de privacidade:**
 
   ```text
-  https://consultor.cx/politica-de-privacidade
+  https://consultor.cx/politica-de-privacidade#transcrever-audio-zendesk
   ```
 
-  Antes de enviar, publicar nessa página a seção de `docs/privacidade-secao-site.md`.
+  Seção publicada e conferida em 19/11/2026.
 
 ## 5. Distribuição (aba "Distribuição")
 

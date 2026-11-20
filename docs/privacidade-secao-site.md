@@ -1,6 +1,6 @@
 # Seção para consultor.cx/politica-de-privacidade
 
-Texto pronto para acrescentar à página https://consultor.cx/politica-de-privacidade (consultor.cx faz parte do grupo ATVEZA), depois da seção "WhatsApp Proativo para Zendesk" e no mesmo formato. Se a mesma seção também for publicada em https://atveza.com/privacy/, manter as duas iguais. A política completa da extensão está em `docs/politica-de-privacidade.md`.
+Texto pronto para acrescentar à página https://consultor.cx/politica-de-privacidade#transcrever-audio-zendesk (consultor.cx faz parte do grupo ATVEZA), depois da seção "WhatsApp Proativo para Zendesk" e no mesmo formato. Se a mesma seção também for publicada em https://atveza.com/privacy/, manter as duas iguais. A política completa da extensão está em `docs/politica-de-privacidade.md`.
 
 ---
 

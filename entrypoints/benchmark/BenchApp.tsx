@@ -47,7 +47,7 @@ export function BenchApp() {
     list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 
   const loadSamples = async (): Promise<BenchAudio[]> => {
-    const manifest = (await fetch('/samples/bench/manifest.json').then((r) =>
+    const manifest = (await fetch('/samples/bench/samples.json').then((r) =>
       r.json(),
     )) as SampleManifest;
     return Promise.all(

@@ -2,7 +2,7 @@
 
 Última atualização: 19 de novembro de 2026 · Responsável: ATVEZA SERVICOS EM TECNOLOGIA LTDA (ATVEZA Technology), CNPJ 48.761.773/0001-17
 
-Esta política vale para a extensão do Chrome "ATVEZA · Transcrever Áudio para Zendesk" (a "extensão"). Publicação: como uma seção da página https://consultor.cx/politica-de-privacidade (consultor.cx, grupo ATVEZA), no mesmo formato da seção do "WhatsApp Proativo para Zendesk" (texto pronto em `docs/privacidade-secao-site.md`).
+Esta política vale para a extensão do Chrome "ATVEZA · Transcrever Áudio para Zendesk" (a "extensão"). Publicação: como uma seção da página https://consultor.cx/politica-de-privacidade#transcrever-audio-zendesk (consultor.cx, grupo ATVEZA), no mesmo formato da seção do "WhatsApp Proativo para Zendesk" (texto pronto em `docs/privacidade-secao-site.md`).
 
 ## Resumo
 

@@ -12,7 +12,7 @@ Data: 2026-11-19 · Transformers.js 4.3.2 · ONNX Runtime Web 1.31 (build asynci
 
 ## Áudios de teste
 
-Seis áudios sintéticos em PT-BR (vozes do macOS), convertidos para OGG/Opus 16 kHz mono 24 kbps como no WhatsApp: 3 s a 50 s, termos técnicos (EDGECAM, dongle, SOLIDWORKS, pós-processador, DriveWorks) e um áudio só com ruído. Estão em `public/samples/bench/`, com a transcrição correta em `manifest.json`.
+Seis áudios sintéticos em PT-BR (vozes do macOS), convertidos para OGG/Opus 16 kHz mono 24 kbps como no WhatsApp: 3 s a 50 s, termos técnicos (EDGECAM, dongle, SOLIDWORKS, pós-processador, DriveWorks) e um áudio só com ruído. Estão em `public/samples/bench/`, com a transcrição correta em `samples.json`.
 
 > Voz sintética é mais fácil que áudio real de WhatsApp (ruído, sotaque, fala rápida). Os 20 áudios reais da SKA (seção 13) continuam necessários. A bancada já aceita áudios próprios mais um `.txt` com a transcrição correta.
 
