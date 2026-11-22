@@ -1,6 +1,6 @@
-# ATVEZA · Transcrever Áudio para Zendesk
+# Como transcrever áudios do WhatsApp no Zendesk com Whisper
 
-Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudios de WhatsApp que chegam aos tickets do Agent Workspace do Zendesk. O modelo Whisper roda no navegador (WebGPU, com WASM como reserva): o áudio não sai da máquina e não há custo por transcrição.
+**Transcrever Áudio para Zendesk**, da ATVEZA, é uma extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudios de WhatsApp que chegam aos tickets do Agent Workspace do Zendesk. O modelo Whisper roda no navegador (WebGPU, com WASM como reserva): o áudio não sai da máquina e não há custo por transcrição.
 
 ## Leia os áudios do WhatsApp sem sair do Zendesk
 
