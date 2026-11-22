@@ -8,3 +8,5 @@ test-results
 bench-results
 .output-*
 publicacao
+# HyperFrames project: scaffold files and composition HTML keep their own format
+video/promo

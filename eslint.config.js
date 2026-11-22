@@ -13,6 +13,8 @@ export default tseslint.config(
       '.wxt/**',
       'node_modules/**',
       'coverage/**',
+      'publicacao/**',
+      'video/**',
     ],
   },
   js.configs.recommended,

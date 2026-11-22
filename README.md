@@ -2,6 +2,7 @@
 
 Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudios de WhatsApp que chegam aos tickets do Agent Workspace do Zendesk. O modelo Whisper roda no navegador (WebGPU, com WASM como reserva): o áudio não sai da máquina e não há custo por transcrição.
 
+- **Instalar:** [Chrome Web Store](https://chromewebstore.google.com/detail/fppeheopbmnnoagoekmllmmohfdncfdf) (versão 0.3.0, qualquer conta do Zendesk)
 - Especificação (fonte da verdade): [`docs/especificacao-tecnica.md`](docs/especificacao-tecnica.md)
 - Relatório da Fase 0: [`docs/fase-0-relatorio.md`](docs/fase-0-relatorio.md)
 - Relatório da Fase 1: [`docs/fase-1-relatorio.md`](docs/fase-1-relatorio.md)
@@ -17,7 +18,7 @@ Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudi
 | 1 · Teste do motor | ✅ Modelo padrão: whisper-large-v3-turbo (falta medir numa máquina típica de agente)                        |
 | 2 · MVP completo   | ✅ Testado no Zendesk real (d3v-atveza, ticket 454): ⋯, transcrição, nota interna privada                   |
 | 3 · Piloto na SKA  | 🚧 Material pronto (build, loja, privacidade, DPO, guia); falta bancada na máquina do agente e os 20 áudios |
-| 4 · Liberação      | ⏳                                                                                                          |
+| 4 · Liberação      | ✅ 0.3.0 publicada na Chrome Web Store em 20/11/2026                                                        |
 
 ## Requisitos
 

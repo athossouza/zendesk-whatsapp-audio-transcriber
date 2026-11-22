@@ -28,7 +28,6 @@ Política de privacidade: https://consultor.cx/politica-de-privacidade#transcrev
 Uma solução ATVEZA · https://consultor.cx
 ```
 
-
 ## Configurações
 
 | Campo                          | Valor                                                                                                                                      |

@@ -4,7 +4,15 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 
 ## [Não lançado]
 
-### 0.3.0 · Qualquer conta do Zendesk
+### Divulgação
+
+- Captura 1 da loja e miniatura do YouTube com uma transcrição de exemplo realista.
+
+## [0.3.0] · 2026-11-20 · Publicada na Chrome Web Store
+
+Primeira versão pública: [Chrome Web Store](https://chromewebstore.google.com/detail/fppeheopbmnnoagoekmllmmohfdncfdf).
+
+### Qualquer conta do Zendesk
 
 - A versão da loja funciona em qualquer `*.zendesk.com` (só na área do agente, `/agent/*`), sem configuração.
 - Empresas podem restringir aos próprios subdomínios e definir o dicionário pela política do Chrome.
@@ -15,7 +23,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); 
 - Leitura: cerca de 62 caracteres por linha (máximo 75), entrelinha 1,5 e parágrafos de até 3 frases.
 - Visual no estilo do Zendesk (Garden): ações como links de texto, tema claro/escuro seguindo o Zendesk.
 
-### Fase 2 · MVP (em andamento)
+### Fase 2 · MVP
 
 - Botão ⋯ ao lado do download do player, menu e caixa de transcrição com texto em tempo real (Shadow DOM fechado).
 - Nota interna privada com marcador; detecção de transcrição já salva (cache local e notas do ticket).
