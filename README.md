@@ -22,6 +22,8 @@
 
 ### Comece a usar
 
+[Veja o guia de instalação e transcrição no consultor.cx](https://consultor.cx/transcrever-audio-zendesk).
+
 1. **[Instale a extensão pela Chrome Web Store](https://chromewebstore.google.com/detail/fppeheopbmnnoagoekmllmmohfdncfdf)** e abra um ticket com áudio no Agent Workspace do Zendesk.
 2. Clique em **⋯** ao lado do áudio e escolha **Transcrever**.
 3. Leia o texto no ticket e, se desejar, **copie ou salve como nota interna privada**.
