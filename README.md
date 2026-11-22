@@ -2,6 +2,40 @@
 
 Extensão Chrome (Manifest V3) que transcreve, no computador do agente, os áudios de WhatsApp que chegam aos tickets do Agent Workspace do Zendesk. O modelo Whisper roda no navegador (WebGPU, com WASM como reserva): o áudio não sai da máquina e não há custo por transcrição.
 
+## Leia os áudios do WhatsApp sem sair do Zendesk
+
+**Transforme mensagens de voz em texto e mantenha o foco no atendimento.** Feita para equipes de suporte e CX que recebem áudios de WhatsApp no Zendesk, a extensão permite consultar a mensagem no próprio ticket e registrar a transcrição para os próximos atendimentos.
+
+### O que sua operação ganha
+
+- **Mais fluidez no atendimento:** leia a mensagem quando não puder ouvir o áudio ou estiver sem fone.
+- **Contexto para a equipe:** salve a transcrição como nota interna privada para facilitar consultas e a continuidade do atendimento.
+- **Menos tarefas manuais:** copie o texto ou registre a nota com um clique.
+- **Privacidade no processamento:** o Whisper roda no computador do agente, sem enviar o áudio a uma API externa de IA.
+- **Sem cobrança por transcrição:** o processamento local dispensa consumo de uma API paga de transcrição.
+
+### Veja a demonstração
+
+[![Assista à demonstração: Transcrever Áudio para Zendesk](docs/store-assets/youtube-thumbnail.png)](https://www.youtube.com/watch?v=OIFcG6mKv1o)
+
+▶️ **[Assistir ao vídeo no YouTube](https://www.youtube.com/watch?v=OIFcG6mKv1o)**
+
+### Comece a usar
+
+1. **[Instale a extensão pela Chrome Web Store](https://chromewebstore.google.com/detail/fppeheopbmnnoagoekmllmmohfdncfdf)** e abra um ticket com áudio no Agent Workspace do Zendesk.
+2. Clique em **⋯** ao lado do áudio e escolha **Transcrever**.
+3. Leia o texto no ticket e, se desejar, **copie ou salve como nota interna privada**.
+
+Na primeira utilização, a extensão baixa o modelo de IA e o mantém no navegador. O desempenho depende do computador: WebGPU acelera o processamento; sem ela, a extensão usa WASM como alternativa. A transcrição é gerada por IA e deve ser conferida antes de ser usada no atendimento.
+
+### Quer levar essa solução para sua equipe?
+
+Precisa de apoio para avaliar o uso na sua operação, orientar agentes ou adaptar a implantação? **[Conheça a consultoria em Zendesk e CX da ATVEZA](https://consultor.cx)** ou fale com **[athos@atveza.com](mailto:athos@atveza.com)**.
+
+[Consulte a política de privacidade](https://consultor.cx/politica-de-privacidade#transcrever-audio-zendesk).
+
+---
+
 - **Instalar:** [Chrome Web Store](https://chromewebstore.google.com/detail/fppeheopbmnnoagoekmllmmohfdncfdf) (versão 0.3.0, qualquer conta do Zendesk)
 - Especificação (fonte da verdade): [`docs/especificacao-tecnica.md`](docs/especificacao-tecnica.md)
 - Relatório da Fase 0: [`docs/fase-0-relatorio.md`](docs/fase-0-relatorio.md)
